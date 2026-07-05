@@ -28,7 +28,7 @@ export function SiteHeader() {
             </Button>
           ))}
         </nav>
-        <Button asChild size="sm">
+        <Button asChild size="sm" variant="secondary">
           <Link aria-label="Entrar" href="/entrar">
             <LogIn size={16} aria-hidden="true" />
             <span className="hidden sm:inline">Entrar</span>

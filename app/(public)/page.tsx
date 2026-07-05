@@ -17,7 +17,11 @@ export default function HomePage() {
             critérios de confiabilidade em uma base relacional preparada para pesquisa.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button asChild className="w-full sm:w-auto" size="lg">
+            <Button
+              asChild
+              className="w-full border-[var(--moss)] bg-[var(--moss)] text-[#fcfbf8] sm:w-auto [&_svg]:stroke-[#fcfbf8]"
+              size="lg"
+            >
               <Link href="/buscar">
                 <Search size={18} aria-hidden="true" />
                 Buscar catálogo
