@@ -10,18 +10,25 @@ type SavedSearchRow = {
 };
 
 async function fetchSavedSearches() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("saved_searches")
-    .select("id,name,parameters_json,created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("saved_searches")
+      .select("id,name,parameters_json,created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
-    return { searches: [] as SavedSearchRow[], error: error.message };
+    if (error) {
+      return { searches: [] as SavedSearchRow[], error: error.message };
+    }
+
+    return { searches: (data ?? []) as SavedSearchRow[], error: null };
+  } catch (error) {
+    return {
+      searches: [] as SavedSearchRow[],
+      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+    };
   }
-
-  return { searches: (data ?? []) as SavedSearchRow[], error: null };
 }
 
 export default async function SavedSearchesPage() {

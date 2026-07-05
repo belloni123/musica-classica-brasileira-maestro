@@ -30,18 +30,25 @@ function composerName(value: { display_name: string } | Array<{ display_name: st
 }
 
 async function fetchFavorites() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("favorites")
-    .select("id,created_at,works(display_title,slug,composers(display_name))")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("id,created_at,works(display_title,slug,composers(display_name))")
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
-    return { favorites: [] as FavoriteRow[], error: error.message };
+    if (error) {
+      return { favorites: [] as FavoriteRow[], error: error.message };
+    }
+
+    return { favorites: (data ?? []) as unknown as FavoriteRow[], error: null };
+  } catch (error) {
+    return {
+      favorites: [] as FavoriteRow[],
+      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+    };
   }
-
-  return { favorites: (data ?? []) as unknown as FavoriteRow[], error: null };
 }
 
 export default async function FavoritesPage() {

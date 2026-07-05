@@ -13,18 +13,25 @@ type RevisionRow = {
 };
 
 async function fetchRevisions() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("revision_history")
-    .select("id,entity_type,entity_id,field_name,changed_at")
-    .order("changed_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("revision_history")
+      .select("id,entity_type,entity_id,field_name,changed_at")
+      .order("changed_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
-    return { revisions: [] as RevisionRow[], error: error.message };
+    if (error) {
+      return { revisions: [] as RevisionRow[], error: error.message };
+    }
+
+    return { revisions: (data ?? []) as RevisionRow[], error: null };
+  } catch (error) {
+    return {
+      revisions: [] as RevisionRow[],
+      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+    };
   }
-
-  return { revisions: (data ?? []) as RevisionRow[], error: null };
 }
 
 export default async function AdminReviewsPage() {

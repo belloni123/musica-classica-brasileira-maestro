@@ -18,18 +18,25 @@ type ImportBatchRow = {
 };
 
 async function fetchImportBatches() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("import_batches")
-    .select("id,file_name,file_type,entity_type,status,total_rows,valid_rows,error_rows,created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("import_batches")
+      .select("id,file_name,file_type,entity_type,status,total_rows,valid_rows,error_rows,created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
-    return { batches: [] as ImportBatchRow[], error: error.message };
+    if (error) {
+      return { batches: [] as ImportBatchRow[], error: error.message };
+    }
+
+    return { batches: (data ?? []) as ImportBatchRow[], error: null };
+  } catch (error) {
+    return {
+      batches: [] as ImportBatchRow[],
+      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+    };
   }
-
-  return { batches: (data ?? []) as ImportBatchRow[], error: null };
 }
 
 export default async function AdminImportPage() {

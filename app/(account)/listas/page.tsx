@@ -12,18 +12,25 @@ type RepertoireListRow = {
 };
 
 async function fetchLists() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("repertoire_lists")
-    .select("id,name,description,private,created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("repertoire_lists")
+      .select("id,name,description,private,created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
-    return { lists: [] as RepertoireListRow[], error: error.message };
+    if (error) {
+      return { lists: [] as RepertoireListRow[], error: error.message };
+    }
+
+    return { lists: (data ?? []) as RepertoireListRow[], error: null };
+  } catch (error) {
+    return {
+      lists: [] as RepertoireListRow[],
+      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+    };
   }
-
-  return { lists: (data ?? []) as RepertoireListRow[], error: null };
 }
 
 export default async function ListsPage() {
