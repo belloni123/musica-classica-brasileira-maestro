@@ -837,14 +837,14 @@ create policy "Users can read own profile"
 on public.profiles for select
 using (auth.uid() = id or public.has_editorial_access());
 
-create policy "Users can update own non-privileged profile"
+create policy "Admins can update profiles"
 on public.profiles for update
-using (auth.uid() = id or public.is_admin())
-with check (auth.uid() = id or public.is_admin());
+using (public.is_admin())
+with check (public.is_admin());
 
 create policy "Admins can insert profiles"
 on public.profiles for insert
-with check (public.is_admin() or auth.uid() = id);
+with check (public.is_admin());
 
 create policy "Organization members can read organizations"
 on public.organizations for select
