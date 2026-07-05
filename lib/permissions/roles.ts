@@ -15,6 +15,10 @@ export function canAccessAdmin(role?: AppRole | null) {
   return role === "admin" || role === "editor" || role === "reviewer";
 }
 
+export function canWriteEditorial(role?: AppRole | null) {
+  return role === "admin" || role === "editor";
+}
+
 export function canAccessCompleteCatalog(role?: AppRole | null) {
   return (
     role === "admin" ||

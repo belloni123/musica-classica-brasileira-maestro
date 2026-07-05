@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { AppRole } from "@/lib/permissions/roles";
-import { canAccessAdmin, canAccessCompleteCatalog } from "@/lib/permissions/roles";
+import {
+  canAccessAdmin,
+  canAccessCompleteCatalog,
+  canWriteEditorial,
+} from "@/lib/permissions/roles";
 
 export type CurrentProfile = {
   id: string;
@@ -65,6 +69,10 @@ export function hasEditorialAccess(profile: CurrentProfile | null) {
   return canAccessAdmin(profile?.role);
 }
 
+export function hasEditorialWriteAccess(profile: CurrentProfile | null) {
+  return canWriteEditorial(profile?.role);
+}
+
 export function hasCompleteCatalogAccess(profile: CurrentProfile | null) {
   return canAccessCompleteCatalog(profile?.role);
 }
@@ -79,6 +87,16 @@ export async function requireAdminAccess() {
   const profile = await getCurrentProfile();
 
   if (!profile || !hasEditorialAccess(profile)) {
+    redirect("/acesso-negado");
+  }
+
+  return { user, profile };
+}
+
+export async function requireEditorialWriteAccess() {
+  const { user, profile } = await requireAdminAccess();
+
+  if (!hasEditorialWriteAccess(profile)) {
     redirect("/acesso-negado");
   }
 
