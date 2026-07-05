@@ -10,6 +10,10 @@ type SearchPageProps = {
   searchParams: Promise<{ q?: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
+const SEARCH_RESULT_LIMIT = 20;
+
 type ComposerResult = {
   id: string;
   display_name: string;
@@ -24,27 +28,37 @@ type WorkResult = {
   public_summary: string | null;
 };
 
+function sanitizeSearchQuery(query: string) {
+  return query
+    .normalize("NFKC")
+    .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+}
+
 async function runSearch(query: string) {
-  if (!query) {
+  const cleaned = sanitizeSearchQuery(query);
+
+  if (!cleaned) {
     return { composers: [] as ComposerResult[], works: [] as WorkResult[], error: null };
   }
 
   try {
     const supabase = await createClient();
-    const cleaned = query.replace(/[,()]/g, " ").trim();
     const [composerResult, workResult] = await Promise.all([
       supabase
         .from("composers")
         .select("id,display_name,slug,short_biography")
         .eq("publication_status", "published")
         .or(`canonical_name.ilike.%${cleaned}%,display_name.ilike.%${cleaned}%,slug.ilike.%${cleaned}%`)
-        .limit(20),
+        .limit(SEARCH_RESULT_LIMIT),
       supabase
         .from("works")
         .select("id,display_title,slug,public_summary")
         .eq("publication_status", "published")
         .or(`canonical_title.ilike.%${cleaned}%,display_title.ilike.%${cleaned}%,slug.ilike.%${cleaned}%`)
-        .limit(20),
+        .limit(SEARCH_RESULT_LIMIT),
     ]);
 
     if (composerResult.error) throw composerResult.error;

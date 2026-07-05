@@ -6,6 +6,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function PublicComposerPage({ params }: PageProps) {
   const { slug } = await params;
 
@@ -13,7 +15,7 @@ export default async function PublicComposerPage({ params }: PageProps) {
     const supabase = await createClient();
     const { data: composer, error } = await supabase
       .from("composers")
-      .select("*")
+      .select("display_name,birth_year,death_year,nationality,short_biography,long_biography")
       .eq("slug", slug)
       .eq("publication_status", "published")
       .single();

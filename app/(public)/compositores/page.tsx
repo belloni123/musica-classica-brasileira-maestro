@@ -14,6 +14,8 @@ type ComposerRow = {
   short_biography: string | null;
 };
 
+export const dynamic = "force-dynamic";
+
 async function fetchPublishedComposers() {
   try {
     const supabase = await createClient();

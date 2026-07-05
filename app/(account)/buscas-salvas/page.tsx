@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { requireAuthenticatedUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 type SavedSearchRow = {
@@ -9,12 +10,13 @@ type SavedSearchRow = {
   created_at: string;
 };
 
-async function fetchSavedSearches() {
+async function fetchSavedSearches(userId: string) {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("saved_searches")
       .select("id,name,parameters_json,created_at")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -32,7 +34,8 @@ async function fetchSavedSearches() {
 }
 
 export default async function SavedSearchesPage() {
-  const { searches, error } = await fetchSavedSearches();
+  const user = await requireAuthenticatedUser();
+  const { searches, error } = await fetchSavedSearches(user.id);
 
   return (
     <div className="grid gap-6">

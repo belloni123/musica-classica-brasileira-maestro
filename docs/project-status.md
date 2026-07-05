@@ -28,6 +28,18 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - Preparacao tecnica para paywall.
 - Preparacao tecnica para documentos de busca externa.
 
+## Consistencia revisada
+
+- Paginas publicas consultam apenas registros com `publication_status = 'published'`.
+- Paginas publicas de detalhe usam selecao explicita de campos, evitando `select("*")`.
+- Dados completos de obra continuam bloqueados visualmente e nao sao expostos na pagina publica.
+- Busca simples limpa caracteres de controle/filtro, limita termos e retorna no maximo 20 compositores e 20 obras.
+- Area de conta e rotas administrativas sao marcadas como dinamicas e protegidas server-side.
+- Paginas pessoais filtram explicitamente por `user_id` alem de dependerem da RLS.
+- `/admin/importacao` apenas lista lotes existentes; nao faz upload, parsing ou escrita automatica.
+- `/admin/revisoes` apenas lista `revision_history` e fica sob protecao editorial do layout admin.
+- `SUPABASE_SERVICE_ROLE_KEY` nao e usado pela aplicacao atual.
+
 ## Ainda nao implementado
 
 - CRUD completo de materiais, manuscritos, referencias vinculadas a obras e disponibilidade.
@@ -55,4 +67,10 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 
 ## Ultimo estado de validacao local
 
-Os comandos `pnpm typecheck` e `pnpm lint` passaram nos blocos implementados. O build completo deve ser executado no final da rodada e novamente apos configurar o Supabase real.
+Os comandos abaixo passaram sem `.env.local`:
+
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm build`
+
+As rotas que dependem de dados reais seguem validaveis estruturalmente, mas a validacao funcional completa depende de um projeto Supabase configurado.

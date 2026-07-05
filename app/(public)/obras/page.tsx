@@ -15,6 +15,8 @@ type WorkRow = {
   composers: { display_name: string } | Array<{ display_name: string }> | null;
 };
 
+export const dynamic = "force-dynamic";
+
 function composerName(value: WorkRow["composers"]) {
   if (Array.isArray(value)) return value[0]?.display_name ?? "-";
   return value?.display_name ?? "-";

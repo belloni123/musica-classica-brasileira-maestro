@@ -7,6 +7,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 function composerName(value: { display_name: string } | Array<{ display_name: string }> | null) {
   if (Array.isArray(value)) return value[0]?.display_name ?? "-";
   return value?.display_name ?? "-";
@@ -19,7 +21,9 @@ export default async function PublicWorkPage({ params }: PageProps) {
     const supabase = await createClient();
     const { data: work, error } = await supabase
       .from("works")
-      .select("*,composers(display_name)")
+      .select(
+        "display_title,composition_year_start,public_summary,formation_type,duration_minutes,has_choir,has_soloist,composers(display_name)",
+      )
       .eq("slug", slug)
       .eq("publication_status", "published")
       .single();

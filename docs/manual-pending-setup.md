@@ -4,29 +4,48 @@ Estas etapas exigem acesso ao painel do Supabase, Coolify, Hostinger ou credenci
 
 ## Supabase
 
-- Criar projeto Supabase Cloud.
-- Copiar `Project URL`.
-- Copiar `anon public key`.
-- Manter `service_role key` apenas para rotinas server-side futuras, nunca em componente client-side.
-- Aplicar migrations SQL.
-- Aplicar seed SQL.
-- Criar o primeiro usuario pelo fluxo normal da aplicacao.
-- Promover o primeiro usuario para `admin`.
-- Testar RLS com perfis reais.
+- [ ] Criar projeto Supabase Cloud.
+- [ ] Copiar `Project URL`.
+- [ ] Copiar `anon public key`.
+- [ ] Preencher `.env.local` com `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- [ ] Aplicar `sql/migrations/0001_initial_foundation.sql`.
+- [ ] Aplicar `sql/migrations/0002_instrument_active.sql`.
+- [ ] Aplicar `sql/seeds/0001_foundation_seeds.sql`.
+- [ ] Criar o primeiro usuario pelo fluxo `/cadastro`.
+- [ ] Promover o primeiro usuario para `admin` via SQL.
+- [ ] Criar usuarios/perfis de teste para `editor`, `reviewer` e `user`.
+- [ ] Testar RLS com perfis reais.
+- [ ] Manter `service_role key` apenas para rotinas server-side futuras, nunca em componente client-side.
+
+SQL de promocao do primeiro admin, substituindo o email:
+
+```sql
+update public.profiles
+set role = 'admin'
+where email = 'SEU_EMAIL';
+```
 
 ## GitHub
 
-- Confirmar que o repositorio remoto esta acessivel:
+- [ ] Confirmar que o repositorio remoto esta acessivel:
   - `belloni123/musica-classica-brasileira-maestro`
-- Ao retomar em outro computador, clonar o repositorio e instalar dependencias.
+- [ ] Ao retomar em outro computador, clonar o repositorio e instalar dependencias.
 
 ## Coolify
 
-- Criar app apontando para o repositorio GitHub.
-- Configurar build com pnpm.
-- Definir variaveis de ambiente.
-- Configurar dominio.
-- Rodar deploy inicial.
+- [ ] Criar app apontando para o repositorio GitHub.
+- [ ] Configurar build com pnpm.
+- [ ] Definir variaveis de ambiente.
+- [ ] Configurar dominio.
+- [ ] Rodar deploy inicial.
+
+Comandos recomendados no Coolify:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build
+pnpm start
+```
 
 ## Variaveis minimas
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { requireAuthenticatedUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 type RepertoireListRow = {
@@ -11,12 +12,13 @@ type RepertoireListRow = {
   created_at: string;
 };
 
-async function fetchLists() {
+async function fetchLists(userId: string) {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("repertoire_lists")
       .select("id,name,description,private,created_at")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -34,7 +36,8 @@ async function fetchLists() {
 }
 
 export default async function ListsPage() {
-  const { lists, error } = await fetchLists();
+  const user = await requireAuthenticatedUser();
+  const { lists, error } = await fetchLists(user.id);
 
   return (
     <div className="grid gap-6">

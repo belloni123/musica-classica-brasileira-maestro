@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { requireAuthenticatedUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 type FavoriteRow = {
@@ -29,12 +30,13 @@ function composerName(value: { display_name: string } | Array<{ display_name: st
   return value?.display_name ?? "-";
 }
 
-async function fetchFavorites() {
+async function fetchFavorites(userId: string) {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("favorites")
       .select("id,created_at,works(display_title,slug,composers(display_name))")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -52,7 +54,8 @@ async function fetchFavorites() {
 }
 
 export default async function FavoritesPage() {
-  const { favorites, error } = await fetchFavorites();
+  const user = await requireAuthenticatedUser();
+  const { favorites, error } = await fetchFavorites(user.id);
 
   return (
     <div className="grid gap-6">
