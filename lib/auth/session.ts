@@ -93,6 +93,16 @@ export async function requireAdminAccess() {
   return { user, profile };
 }
 
+export async function requireAuthenticatedUser() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/entrar");
+  }
+
+  return user;
+}
+
 export async function requireEditorialWriteAccess() {
   const { user, profile } = await requireAdminAccess();
 
