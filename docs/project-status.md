@@ -27,6 +27,7 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - Painel de revisoes em modo leitura.
 - Preparacao tecnica para paywall.
 - Preparacao tecnica para documentos de busca externa.
+- Modo demonstracao navegavel com dados ficticios via `NEXT_PUBLIC_DEMO_MODE=true`.
 
 ## Consistencia revisada
 
@@ -39,6 +40,12 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - `/admin/importacao` apenas lista lotes existentes; nao faz upload, parsing ou escrita automatica.
 - `/admin/revisoes` apenas lista `revision_history` e fica sob protecao editorial do layout admin.
 - `SUPABASE_SERVICE_ROLE_KEY` nao e usado pela aplicacao atual.
+
+## Modo demonstracao
+
+Quando `NEXT_PUBLIC_DEMO_MODE=true`, o projeto usa um cliente Supabase simulado em `lib/demo/supabase.ts` e dados ficticios em `lib/demo/data.ts`.
+
+Esse modo permite navegar pelas paginas publicas, area de conta e painel administrativo sem Supabase real. Ele serve apenas para avaliacao de interface e fluxo; dados enviados em formularios nao sao persistidos.
 
 ## Ainda nao implementado
 

@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { demoProfile, demoUser } from "@/lib/demo/data";
+import { isDemoMode } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { AppRole } from "@/lib/permissions/roles";
 import {
@@ -16,6 +18,10 @@ export type CurrentProfile = {
 };
 
 export async function getCurrentUser() {
+  if (isDemoMode()) {
+    return demoUser;
+  }
+
   try {
     const supabase = await createClient();
     const {
@@ -34,6 +40,10 @@ export async function getCurrentUser() {
 }
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+  if (isDemoMode()) {
+    return demoProfile as CurrentProfile;
+  }
+
   try {
     const supabase = await createClient();
     const {

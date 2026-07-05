@@ -1,8 +1,13 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { assertSupabasePublicEnv, publicEnv } from "@/lib/env";
+import { createDemoClient } from "@/lib/demo/supabase";
+import { assertSupabasePublicEnv, isDemoMode, publicEnv } from "@/lib/env";
 
 export async function createClient() {
+  if (isDemoMode()) {
+    return createDemoClient() as unknown as ReturnType<typeof createServerClient>;
+  }
+
   assertSupabasePublicEnv();
   const supabaseUrl = publicEnv.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY;

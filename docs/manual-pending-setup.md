@@ -53,7 +53,16 @@ pnpm start
 NEXT_PUBLIC_SITE_URL=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_DEMO_MODE=false
 ```
+
+Para publicar uma demo navegavel sem Supabase real, usar:
+
+```env
+NEXT_PUBLIC_DEMO_MODE=true
+```
+
+Nesse modo os dados sao ficticios e nao persistentes.
 
 ## Variaveis futuras
 
