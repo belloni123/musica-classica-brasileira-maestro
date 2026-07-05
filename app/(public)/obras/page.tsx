@@ -1,15 +1,84 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { createClient } from "@/lib/supabase/server";
 
-export default function WorksPage() {
+type WorkRow = {
+  id: string;
+  display_title: string;
+  canonical_title: string;
+  slug: string;
+  composition_year_start: number | null;
+  duration_minutes: number | null;
+  formation_type: string | null;
+  public_summary: string | null;
+  composers: { display_name: string } | Array<{ display_name: string }> | null;
+};
+
+function composerName(value: WorkRow["composers"]) {
+  if (Array.isArray(value)) return value[0]?.display_name ?? "-";
+  return value?.display_name ?? "-";
+}
+
+async function fetchPublishedWorks() {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("works")
+      .select(
+        "id,display_title,canonical_title,slug,composition_year_start,duration_minutes,formation_type,public_summary,composers(display_name)",
+      )
+      .eq("publication_status", "published")
+      .order("display_title", { ascending: true })
+      .limit(100);
+
+    if (error) throw error;
+    return { works: (data ?? []) as unknown as WorkRow[], error: null };
+  } catch (error) {
+    return {
+      works: [] as WorkRow[],
+      error: error instanceof Error ? error.message : "Base ainda não conectada.",
+    };
+  }
+}
+
+export default async function WorksPage() {
+  const { works, error } = await fetchPublishedWorks();
+
   return (
     <div className="grid gap-6">
-      <h1 className="text-3xl font-semibold">Obras</h1>
-      <Card>
-        <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-          Listagem pública preparada para obras publicadas. Instrumentação detalhada será tratada
-          com permissão própria.
+      <div>
+        <h1 className="text-3xl font-semibold">Obras</h1>
+        <p className="mt-2 text-[var(--muted-foreground)]">
+          Obras publicadas da música brasileira de concerto.
         </p>
-      </Card>
+      </div>
+      {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
+      {works.length === 0 ? (
+        <EmptyState
+          title="Nenhuma obra publicada"
+          description="A listagem será preenchida quando houver obras publicadas no Supabase."
+        />
+      ) : (
+        <div className="grid gap-4">
+          {works.map((work) => (
+            <Link href={`/obras/${work.slug}`} key={work.id}>
+              <Card className="transition-colors hover:border-[var(--primary)]">
+                <h2 className="font-semibold">{work.display_title}</h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  {composerName(work.composers)} · {work.composition_year_start ?? "s/d"} ·{" "}
+                  {work.formation_type ?? "formação não informada"}
+                </p>
+                {work.public_summary ? (
+                  <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
+                    {work.public_summary}
+                  </p>
+                ) : null}
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

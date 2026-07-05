@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, ShieldCheck } from "lucide-react";
+import { BookOpen, Database, Search, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -12,12 +12,12 @@ export default function HomePage() {
             Base musicológica brasileira
           </p>
           <h1 className="text-4xl font-semibold leading-tight md:text-5xl">
-            Catálogo estruturado para pesquisar, revisar e difundir a música brasileira de
+            Base de dados para pesquisa, programação, estudo e difusão da música brasileira de
             concerto.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
-            Primeira etapa técnica: banco relacional, autenticação, segurança por RLS e painel
-            editorial inicial. A busca avançada e o paywall entram depois da fundação.
+            Uma plataforma SaaS acadêmico-cultural para organizar compositores, obras,
+            instrumentação, fontes, acervos, referências e critérios de confiabilidade.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -38,20 +38,21 @@ export default function HomePage() {
 
       <section className="grid gap-4 md:grid-cols-3">
         <Card>
-          <h2 className="font-semibold">Fonte oficial</h2>
+          <Database className="mb-3 text-[var(--primary)]" size={22} aria-hidden="true" />
+          <h2 className="font-semibold">Base relacional</h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-            O Supabase/Postgres é a origem dos dados. Índices de busca serão derivados e
-            reconstruíveis.
+            Supabase/Postgres é a fonte oficial dos dados; índices de busca serão derivados.
           </p>
         </Card>
         <Card>
-          <h2 className="font-semibold">Editorial primeiro</h2>
+          <BookOpen className="mb-3 text-[var(--primary)]" size={22} aria-hidden="true" />
+          <h2 className="font-semibold">Metodologia editorial</h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-            A primeira entrega prioriza compositores, obras, instrumentos, fontes, revisão e
-            publicação.
+            Dados com status editorial, confiabilidade, revisão, fontes e histórico de mudanças.
           </p>
         </Card>
         <Card>
+          <ShieldCheck className="mb-3 text-[var(--primary)]" size={22} aria-hidden="true" />
           <h2 className="font-semibold">Segurança desde o início</h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
             RLS, papéis, auditoria e histórico editorial entram antes de assinatura e API pública.
