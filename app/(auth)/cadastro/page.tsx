@@ -7,12 +7,13 @@ export default function SignUpPage() {
   return (
     <div className="mx-auto grid w-full max-w-md gap-6">
       <div>
-        <h1 className="text-3xl font-semibold">Cadastro</h1>
-        <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-          Perfil criado automaticamente pelo trigger do Supabase.
+        <p className="mb-3 text-sm text-[var(--accent)]">Conta</p>
+        <h1 className="text-4xl font-semibold leading-tight text-[var(--foreground-strong)]">Cadastro</h1>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
+          Crie seu acesso para acompanhar repertórios e recursos editoriais.
         </p>
       </div>
-      <Card>
+      <Card className="p-6">
         <form action={signUp} className="grid gap-4">
           <label className="grid gap-2 text-sm font-medium">
             Nome

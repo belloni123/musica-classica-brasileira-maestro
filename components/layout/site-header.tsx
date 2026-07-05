@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Database, LogIn } from "lucide-react";
+import { LibraryBig, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const publicLinks = [
@@ -12,13 +12,14 @@ const publicLinks = [
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-[var(--border)] bg-white">
-      <div className="mx-auto flex min-h-[72px] w-full max-w-7xl items-center justify-between gap-6 px-6">
-        <Link className="flex items-center gap-3 font-semibold" href="/">
-          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--primary)] text-white">
-            <Database size={18} aria-hidden="true" />
+    <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_92%,transparent)] backdrop-blur-md">
+      <div className="mx-auto flex min-h-[72px] w-full max-w-7xl items-center justify-between gap-6 px-5 md:px-8">
+        <Link className="flex min-w-0 items-center gap-3 text-sm font-normal md:text-base" href="/">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--button-inset)]">
+            <LibraryBig size={17} aria-hidden="true" />
           </span>
-          <span>Música Brasileira de Concerto</span>
+          <span className="hidden leading-tight sm:inline">Música Brasileira de Concerto</span>
+          <span className="leading-tight sm:hidden">MBC</span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex" aria-label="Navegação pública">
           {publicLinks.map((link) => (
@@ -27,10 +28,10 @@ export function SiteHeader() {
             </Button>
           ))}
         </nav>
-        <Button asChild size="sm" variant="secondary">
-          <Link href="/entrar">
+        <Button asChild size="sm">
+          <Link aria-label="Entrar" href="/entrar">
             <LogIn size={16} aria-hidden="true" />
-            Entrar
+            <span className="hidden sm:inline">Entrar</span>
           </Link>
         </Button>
       </div>

@@ -85,21 +85,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const hasResults = composers.length > 0 || works.length > 0;
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Buscar</h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
-          Busca simples inicial em compositores e obras publicados.
+    <div className="grid gap-8">
+      <div className="max-w-3xl">
+        <p className="mb-3 text-sm text-[var(--accent)]">Catálogo público</p>
+        <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+          Buscar compositores e obras
+        </h1>
+        <p className="mt-4 text-lg leading-8 text-[var(--muted-foreground)]">
+          Consulta inicial sobre registros publicados da base.
         </p>
       </div>
-      <Card>
+      <Card className="p-4 md:p-5">
         <form action="/buscar" className="flex flex-col gap-3 md:flex-row">
           <label className="grid flex-1 gap-2 text-sm font-medium">
             Termo
             <Input defaultValue={query} name="q" placeholder="Compositor, obra ou palavra-chave" />
           </label>
           <div className="flex items-end">
-            <Button type="submit">
+            <Button className="w-full md:w-auto" type="submit">
               <Search size={16} aria-hidden="true" />
               Buscar
             </Button>
@@ -114,14 +117,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       ) : (
         <div className="grid gap-6">
           <section className="grid gap-3">
-            <h2 className="text-xl font-semibold">Compositores</h2>
+            <h2 className="text-2xl font-normal">Compositores</h2>
             {composers.length === 0 ? (
               <p className="text-sm text-[var(--muted-foreground)]">Nenhum compositor encontrado.</p>
             ) : (
               composers.map((composer) => (
                 <Link href={`/compositores/${composer.slug}`} key={composer.id}>
-                  <Card className="transition-colors hover:border-[var(--primary)]">
-                    <h3 className="font-semibold">{composer.display_name}</h3>
+                  <Card className="transition-colors hover:border-[var(--border-strong)]">
+                    <h3 className="text-xl font-normal">{composer.display_name}</h3>
                     <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                       {composer.short_biography ?? "Sem resumo público."}
                     </p>
@@ -131,14 +134,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
           </section>
           <section className="grid gap-3">
-            <h2 className="text-xl font-semibold">Obras</h2>
+            <h2 className="text-2xl font-normal">Obras</h2>
             {works.length === 0 ? (
               <p className="text-sm text-[var(--muted-foreground)]">Nenhuma obra encontrada.</p>
             ) : (
               works.map((work) => (
                 <Link href={`/obras/${work.slug}`} key={work.id}>
-                  <Card className="transition-colors hover:border-[var(--primary)]">
-                    <h3 className="font-semibold">{work.display_title}</h3>
+                  <Card className="transition-colors hover:border-[var(--border-strong)]">
+                    <h3 className="text-xl font-normal">{work.display_title}</h3>
                     <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                       {work.public_summary ?? "Sem resumo público."}
                     </p>

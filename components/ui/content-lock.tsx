@@ -11,9 +11,9 @@ export function ContentLock({
   description?: string;
 }) {
   return (
-    <Card className="grid gap-3 border-dashed">
+    <Card className="grid gap-4 border-dashed bg-[color-mix(in_srgb,var(--accent)_5%,var(--surface))]">
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--muted)] text-[var(--accent)]">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--background)] text-[var(--accent)] shadow-[var(--button-inset)]">
           <Lock size={18} aria-hidden="true" />
         </span>
         <div>

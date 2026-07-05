@@ -31,21 +31,24 @@ export default async function PublicWorkPage({ params }: PageProps) {
     if (error || !work) notFound();
 
     return (
-      <div className="grid gap-6">
-        <div>
-          <h1 className="text-3xl font-semibold">{work.display_title}</h1>
-          <p className="mt-2 text-[var(--muted-foreground)]">
+      <div className="grid gap-8">
+        <div className="max-w-3xl">
+          <p className="mb-3 text-sm text-[var(--accent)]">Obra</p>
+          <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+            {work.display_title}
+          </h1>
+          <p className="mt-4 text-lg text-[var(--muted-foreground)]">
             {composerName(work.composers)} · {work.composition_year_start ?? "s/d"}
           </p>
         </div>
         <Card>
-          <h2 className="font-semibold">Resumo público</h2>
+          <h2 className="text-2xl font-normal">Resumo público</h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-foreground)]">
             {work.public_summary ?? "Resumo público ainda não informado."}
           </p>
         </Card>
         <Card>
-          <h2 className="font-semibold">Dados básicos</h2>
+          <h2 className="text-2xl font-normal">Dados básicos</h2>
           <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
             <div>
               <dt className="text-[var(--muted-foreground)]">Formação</dt>

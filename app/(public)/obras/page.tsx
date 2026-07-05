@@ -48,10 +48,13 @@ export default async function WorksPage() {
   const { works, error } = await fetchPublishedWorks();
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Obras</h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
+    <div className="grid gap-8">
+      <div className="max-w-3xl">
+        <p className="mb-3 text-sm text-[var(--accent)]">Catálogo público</p>
+        <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+          Obras
+        </h1>
+        <p className="mt-4 text-lg leading-8 text-[var(--muted-foreground)]">
           Obras publicadas da música brasileira de concerto.
         </p>
       </div>
@@ -65,8 +68,8 @@ export default async function WorksPage() {
         <div className="grid gap-4">
           {works.map((work) => (
             <Link href={`/obras/${work.slug}`} key={work.id}>
-              <Card className="transition-colors hover:border-[var(--primary)]">
-                <h2 className="font-semibold">{work.display_title}</h2>
+              <Card className="transition-colors hover:border-[var(--border-strong)]">
+                <h2 className="text-xl font-normal">{work.display_title}</h2>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                   {composerName(work.composers)} · {work.composition_year_start ?? "s/d"} ·{" "}
                   {work.formation_type ?? "formação não informada"}

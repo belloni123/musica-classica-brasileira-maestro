@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         <SiteHeader />
-        <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-7xl flex-col px-6 py-8">
+        <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-7xl flex-col px-5 py-10 md:px-8 md:py-14">
           {children}
         </main>
       </body>

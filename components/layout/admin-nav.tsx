@@ -34,7 +34,7 @@ export function AdminNav() {
 
           return (
             <Link
-              className="flex min-h-10 items-center gap-3 rounded-md px-3 text-sm text-[var(--muted-foreground)] hover:bg-white hover:text-[var(--foreground)]"
+              className="flex min-h-10 items-center gap-3 rounded-md px-3 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               href={item.href}
               key={item.href}
             >

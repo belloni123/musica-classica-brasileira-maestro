@@ -40,10 +40,13 @@ export default async function ComposersPage() {
   const { composers, error } = await fetchPublishedComposers();
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Compositores</h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
+    <div className="grid gap-8">
+      <div className="max-w-3xl">
+        <p className="mb-3 text-sm text-[var(--accent)]">Índice público</p>
+        <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+          Compositores
+        </h1>
+        <p className="mt-4 text-lg leading-8 text-[var(--muted-foreground)]">
           Índice público de compositores publicados na base.
         </p>
       </div>
@@ -57,8 +60,8 @@ export default async function ComposersPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {composers.map((composer) => (
             <Link href={`/compositores/${composer.slug}`} key={composer.id}>
-              <Card className="h-full transition-colors hover:border-[var(--primary)]">
-                <h2 className="font-semibold">{composer.display_name}</h2>
+              <Card className="h-full transition-colors hover:border-[var(--border-strong)]">
+                <h2 className="text-xl font-normal">{composer.display_name}</h2>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                   {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
                   {composer.nationality ?? "nacionalidade não informada"}

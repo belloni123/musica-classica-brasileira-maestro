@@ -23,16 +23,19 @@ export default async function PublicComposerPage({ params }: PageProps) {
     if (error || !composer) notFound();
 
     return (
-      <div className="grid gap-6">
-        <div>
-          <h1 className="text-3xl font-semibold">{composer.display_name}</h1>
-          <p className="mt-2 text-[var(--muted-foreground)]">
+      <div className="grid gap-8">
+        <div className="max-w-3xl">
+          <p className="mb-3 text-sm text-[var(--accent)]">Compositor</p>
+          <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+            {composer.display_name}
+          </h1>
+          <p className="mt-4 text-lg text-[var(--muted-foreground)]">
             {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
             {composer.nationality ?? "nacionalidade não informada"}
           </p>
         </div>
-        <Card>
-          <h2 className="font-semibold">Biografia</h2>
+        <Card className="max-w-4xl">
+          <h2 className="text-2xl font-normal">Biografia</h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-foreground)]">
             {composer.long_biography ?? composer.short_biography ?? "Biografia ainda não informada."}
           </p>

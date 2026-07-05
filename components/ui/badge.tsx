@@ -4,10 +4,10 @@ type BadgeTone = "neutral" | "success" | "warning" | "danger" | "info";
 
 const toneClasses: Record<BadgeTone, string> = {
   neutral: "border-[var(--border)] bg-[var(--muted)] text-[var(--foreground)]",
-  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
-  danger: "border-red-200 bg-red-50 text-red-800",
-  info: "border-sky-200 bg-sky-50 text-sky-800",
+  success: "border-[color-mix(in_srgb,var(--moss)_30%,transparent)] bg-[color-mix(in_srgb,var(--moss)_10%,transparent)] text-[var(--moss)]",
+  warning: "border-[color-mix(in_srgb,#9d6b1f_32%,transparent)] bg-[color-mix(in_srgb,#9d6b1f_10%,transparent)] text-[#74501b]",
+  danger: "border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]",
+  info: "border-[color-mix(in_srgb,#36536d_30%,transparent)] bg-[color-mix(in_srgb,#36536d_10%,transparent)] text-[#36536d]",
 };
 
 export function Badge({
@@ -22,7 +22,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex min-h-6 items-center rounded-md border px-2 text-xs font-medium",
+        "inline-flex min-h-6 items-center rounded-full border px-2.5 text-xs font-normal",
         toneClasses[tone],
         className,
       )}

@@ -4,16 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-normal transition-[border-color,background-color,opacity,box-shadow] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary:
-          "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90 focus-visible:outline-[var(--primary)]",
+          "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--button-inset)] hover:opacity-90 focus-visible:shadow-[var(--focus-shadow)]",
         secondary:
-          "border-[var(--border)] bg-white text-[var(--foreground)] hover:bg-[var(--muted)] focus-visible:outline-[var(--primary)]",
+          "border-[var(--border-strong)] bg-transparent text-[var(--foreground)] hover:bg-[var(--muted)] focus-visible:shadow-[var(--focus-shadow)]",
         ghost:
-          "border-transparent bg-transparent text-[var(--foreground)] hover:bg-[var(--muted)] focus-visible:outline-[var(--primary)]",
+          "border-transparent bg-transparent text-[var(--foreground)] hover:bg-[var(--muted)] focus-visible:shadow-[var(--focus-shadow)]",
       },
       size: {
         sm: "h-9 px-3",

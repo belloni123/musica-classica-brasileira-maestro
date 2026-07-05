@@ -18,10 +18,13 @@ const futurePlans = [
 
 export default function PlansPage() {
   return (
-    <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Planos</h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
+    <div className="grid gap-8">
+      <div className="max-w-3xl">
+        <p className="mb-3 text-sm text-[var(--accent)]">Acesso futuro</p>
+        <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+          Planos
+        </h1>
+        <p className="mt-4 text-lg leading-8 text-[var(--muted-foreground)]">
           Página preparada para assinatura futura. Checkout, cobrança e webhooks ainda não estão ativos.
         </p>
       </div>
@@ -29,7 +32,7 @@ export default function PlansPage() {
         {futurePlans.map((plan) => (
           <Card className="grid gap-3" key={plan.name}>
             <CheckCircle2 className="text-[var(--primary)]" size={20} aria-hidden="true" />
-            <h2 className="font-semibold">{plan.name}</h2>
+            <h2 className="text-xl font-normal">{plan.name}</h2>
             <p className="text-sm leading-6 text-[var(--muted-foreground)]">{plan.description}</p>
           </Card>
         ))}
