@@ -3,17 +3,12 @@ import { Archive, CheckCircle2 } from "lucide-react";
 import { AdminNav } from "@/components/layout/admin-nav";
 import { ComposerForm } from "@/components/forms/composer-form";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   archiveComposer,
   publishComposer,
   updateComposer,
 } from "@/app/admin/compositores/actions";
-import {
-  getCurrentProfile,
-  hasEditorialWriteAccess,
-  requireAdminAccess,
-} from "@/lib/auth/session";
+import { requireEditorialWriteAccess } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 type EditComposerPageProps = {
@@ -21,10 +16,8 @@ type EditComposerPageProps = {
 };
 
 export default async function EditComposerPage({ params }: EditComposerPageProps) {
-  await requireAdminAccess();
+  await requireEditorialWriteAccess();
   const { id } = await params;
-  const profile = await getCurrentProfile();
-  const canWrite = hasEditorialWriteAccess(profile);
   const supabase = await createClient();
   const { data: composer, error } = await supabase
     .from("composers")
@@ -51,32 +44,22 @@ export default async function EditComposerPage({ params }: EditComposerPageProps
               Status editorial: {composer.publication_status}
             </p>
           </div>
-          {canWrite ? (
-            <div className="flex flex-wrap gap-2">
-              <form action={publishAction}>
-                <Button type="submit" variant="secondary">
-                  <CheckCircle2 size={16} aria-hidden="true" />
-                  Publicar
-                </Button>
-              </form>
-              <form action={archiveAction}>
-                <Button type="submit" variant="secondary">
-                  <Archive size={16} aria-hidden="true" />
-                  Arquivar
-                </Button>
-              </form>
-            </div>
-          ) : null}
+          <div className="flex flex-wrap gap-2">
+            <form action={publishAction}>
+              <Button type="submit" variant="secondary">
+                <CheckCircle2 size={16} aria-hidden="true" />
+                Publicar
+              </Button>
+            </form>
+            <form action={archiveAction}>
+              <Button type="submit" variant="secondary">
+                <Archive size={16} aria-hidden="true" />
+                Arquivar
+              </Button>
+            </form>
+          </div>
         </div>
-        {canWrite ? (
-          <ComposerForm action={updateAction} composer={composer} submitLabel="Salvar alteracoes" />
-        ) : (
-          <Card>
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Seu papel permite revisao e leitura administrativa, mas nao permite editar compositores.
-            </p>
-          </Card>
-        )}
+        <ComposerForm action={updateAction} composer={composer} submitLabel="Salvar alteracoes" />
       </section>
     </>
   );

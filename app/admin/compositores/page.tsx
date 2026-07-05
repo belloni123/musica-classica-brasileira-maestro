@@ -188,14 +188,14 @@ export default async function AdminComposersPage({ searchParams }: AdminComposer
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-2">
-                          <Button asChild size="sm" variant="secondary">
-                            <Link href={`/admin/compositores/${composer.id}/editar`}>
-                              <Edit size={14} aria-hidden="true" />
-                              Editar
-                            </Link>
-                          </Button>
                           {canWrite ? (
                             <>
+                              <Button asChild size="sm" variant="secondary">
+                                <Link href={`/admin/compositores/${composer.id}/editar`}>
+                                  <Edit size={14} aria-hidden="true" />
+                                  Editar
+                                </Link>
+                              </Button>
                               <form action={publishAction}>
                                 <Button size="sm" type="submit" variant="ghost">
                                   <CheckCircle2 size={14} aria-hidden="true" />
