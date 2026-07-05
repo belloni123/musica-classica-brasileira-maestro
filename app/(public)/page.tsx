@@ -19,12 +19,12 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
               asChild
-              className="w-full border-[var(--moss)] bg-[var(--moss)] text-[#fcfbf8] sm:w-auto [&_svg]:stroke-[#fcfbf8]"
+              className="w-full border-[var(--primary)] bg-[var(--primary)] !text-[#fcfbf8] sm:w-auto"
               size="lg"
             >
               <Link href="/buscar">
-                <Search size={18} aria-hidden="true" />
-                Buscar catálogo
+                <Search className="shrink-0 text-[#fcfbf8]" size={18} aria-hidden="true" />
+                <span className="text-[#fcfbf8]">Buscar catálogo</span>
               </Link>
             </Button>
             <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
