@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 import { Archive, CheckCircle2 } from "lucide-react";
 import { archiveWork, publishWork, updateWork } from "@/app/admin/obras/actions";
 import { WorkForm, type ComposerOption } from "@/components/forms/work-form";
+import {
+  WorkInstrumentationSection,
+  type InstrumentOption,
+  type WorkInstrumentationRow,
+} from "@/components/forms/work-instrumentation-section";
 import { AdminNav } from "@/components/layout/admin-nav";
 import { AdminPageHeader } from "@/components/layout/admin-page-header";
 import { Button } from "@/components/ui/button";
@@ -26,13 +31,47 @@ async function fetchComposers() {
   return (data ?? []) as ComposerOption[];
 }
 
+async function fetchInstruments() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("instruments")
+    .select("id,name,family")
+    .order("display_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw new Error(`Erro ao carregar instrumentos: ${error.message}`);
+  }
+
+  return (data ?? []) as InstrumentOption[];
+}
+
+async function fetchInstrumentationRows(workId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("work_instrumentation")
+    .select(
+      "id,instrument_id,minimum_quantity,maximum_quantity,quantity_text,required,optional,doubling,doubled_instrument_id,substitutable,notes,source",
+    )
+    .eq("work_id", workId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`Erro ao carregar instrumentacao: ${error.message}`);
+  }
+
+  return (data ?? []) as WorkInstrumentationRow[];
+}
+
 export default async function EditWorkPage({ params }: PageProps) {
   await requireEditorialWriteAccess();
   const { id } = await params;
   const supabase = await createClient();
-  const [{ data: work, error }, composers] = await Promise.all([
+  const [{ data: work, error }, composers, instruments, instrumentationRows] = await Promise.all([
     supabase.from("works").select("*").eq("id", id).single(),
     fetchComposers(),
+    fetchInstruments(),
+    fetchInstrumentationRows(id),
   ]);
 
   if (error || !work) {
@@ -72,6 +111,11 @@ export default async function EditWorkPage({ params }: PageProps) {
           composers={composers}
           submitLabel="Salvar alterações"
           work={work}
+        />
+        <WorkInstrumentationSection
+          instruments={instruments}
+          rows={instrumentationRows}
+          workId={id}
         />
       </section>
     </>
