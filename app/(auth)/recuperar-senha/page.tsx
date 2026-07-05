@@ -14,6 +14,13 @@ export default function ResetPasswordPage() {
       </div>
       <Card>
         <form action={resetPassword} className="grid gap-4">
+          <input
+            autoComplete="off"
+            className="hidden"
+            name="company"
+            tabIndex={-1}
+            type="text"
+          />
           <label className="grid gap-2 text-sm font-medium">
             E-mail
             <Input autoComplete="email" name="email" required type="email" />

@@ -28,6 +28,7 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - Preparacao tecnica para paywall.
 - Preparacao tecnica para documentos de busca externa.
 - Modo demonstracao navegavel com dados ficticios via `NEXT_PUBLIC_DEMO_MODE=true`.
+- Endurecimento inicial de seguranca para autenticacao, headers HTTP e higiene de repositorio.
 
 ## Consistencia revisada
 
@@ -40,6 +41,7 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - `/admin/importacao` apenas lista lotes existentes; nao faz upload, parsing ou escrita automatica.
 - `/admin/revisoes` apenas lista `revision_history` e fica sob protecao editorial do layout admin.
 - `SUPABASE_SERVICE_ROLE_KEY` nao e usado pela aplicacao atual.
+- Fluxos de login, cadastro e recuperacao possuem validacao server-side, honeypot e limite inicial de tentativas.
 
 ## Modo demonstracao
 
@@ -58,6 +60,7 @@ Esse modo permite navegar pelas paginas publicas, area de conta e painel adminis
 - API publica.
 - Testes automatizados.
 - Validacao real contra Supabase Cloud neste ambiente, pois depende do `.env.local` e credenciais reais.
+- Rate limit compartilhado em Redis/Upstash ou firewall externo para producao com multiplas instancias.
 
 ## Estado recomendado para retomada
 

@@ -2,7 +2,7 @@
 
 ## Projeto: Plataforma de Pesquisa da Música Brasileira de Concerto
 
-**Cliente:** Maestro Tiago Santos  
+**Cliente:** projeto interno  
 **Objetivo:** Criar uma plataforma de catalogação, pesquisa, assinatura e difusão da música brasileira de concerto, inspirada funcionalmente no Daniels’ Orchestral Music Online, mas com metodologia, base de dados, identidade e evolução próprias.
 
 ---
@@ -20,7 +20,7 @@ A arquitetura ideal para este momento é:
 
 > **Aplicação web moderna, banco relacional robusto, autenticação pronta, busca dedicada e deploy simplificado via Coolify.**
 
-Como você já possui Coolify na Hostinger e experiência com Supabase, a recomendação principal é construir o projeto usando:
+Considerando uma infraestrutura com Coolify e familiaridade com Supabase, a recomendação principal é construir o projeto usando:
 
 - **Next.js** para front-end e back-end da aplicação.
 - **Supabase** para banco Postgres, autenticação, storage e políticas de acesso.

@@ -176,7 +176,22 @@ Resultado esperado:
 - usuario autenticado sem papel editorial e redirecionado para `/acesso-negado`;
 - `admin`, `editor` e `reviewer` acessam o painel.
 
-## 9. Observacoes de compatibilidade com Supabase Cloud
+## 9. Configuracoes de seguranca do Auth
+
+Antes de abrir cadastro real para usuarios externos, revise em `Authentication`:
+
+- exigir confirmacao de e-mail;
+- configurar politica minima de senha forte;
+- revisar rate limits de login, cadastro e recuperacao;
+- habilitar protecao anti-bot/CAPTCHA quando disponivel;
+- restringir URLs de redirect aos dominios reais;
+- configurar SMTP transacional proprio;
+- desativar provedores OAuth nao utilizados;
+- exigir processo interno de MFA para administradores, se disponivel.
+
+O app tambem aplica validacao server-side, honeypot e limite inicial de tentativas, mas isso nao substitui as protecoes do Supabase e do provedor de deploy.
+
+## 10. Observacoes de compatibilidade com Supabase Cloud
 
 - `create extension if not exists pgcrypto` e compativel com Supabase Cloud.
 - A trigger em `auth.users` e um padrao comum no Supabase para criar `profiles`.
@@ -184,7 +199,7 @@ Resultado esperado:
 - As politicas de `profiles` nao permitem que um usuario comum altere o proprio papel.
 - Mudancas de papel devem ser feitas por SQL administrativo ou por uma tela admin futura protegida.
 
-## 10. Ordem segura de execucao
+## 11. Ordem segura de execucao
 
 1. Criar Supabase.
 2. Preencher `.env.local`.

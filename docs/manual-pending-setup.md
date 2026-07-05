@@ -16,6 +16,7 @@ Estas etapas exigem acesso ao painel do Supabase, Coolify, Hostinger ou credenci
 - [ ] Criar usuarios/perfis de teste para `editor`, `reviewer` e `user`.
 - [ ] Testar RLS com perfis reais.
 - [ ] Manter `service_role key` apenas para rotinas server-side futuras, nunca em componente client-side.
+- [ ] Ativar confirmacao de e-mail, politica de senha forte e protecoes anti-bot/rate limit do Supabase Auth antes de abrir cadastro real.
 
 SQL de promocao do primeiro admin, substituindo o email:
 
@@ -27,8 +28,7 @@ where email = 'SEU_EMAIL';
 
 ## GitHub
 
-- [ ] Confirmar que o repositorio remoto esta acessivel:
-  - `belloni123/musica-classica-brasileira-maestro`
+- [ ] Confirmar que o repositorio remoto esta acessivel no GitHub.
 - [ ] Ao retomar em outro computador, clonar o repositorio e instalar dependencias.
 
 ## Coolify
@@ -38,6 +38,16 @@ where email = 'SEU_EMAIL';
 - [ ] Definir variaveis de ambiente.
 - [ ] Configurar dominio.
 - [ ] Rodar deploy inicial.
+- [ ] Garantir HTTPS obrigatorio.
+- [ ] Definir variaveis sensiveis somente no painel do Coolify.
+- [ ] Confirmar `NEXT_PUBLIC_DEMO_MODE=false` no ambiente real.
+
+## Seguranca antes de producao
+
+- [ ] Revisar `docs/security.md`.
+- [ ] Rodar varredura por segredos antes do push/deploy.
+- [ ] Confirmar que `.env.local`, `.vercel/`, dumps e chaves privadas nao estao versionados.
+- [ ] Configurar camada externa de rate limit/WAF quando houver trafego real.
 
 Comandos recomendados no Coolify:
 

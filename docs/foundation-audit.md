@@ -339,7 +339,7 @@ Proximos passos recomendados:
 
 Repositorio remoto:
 
-- `https://github.com/belloni123/musica-classica-brasileira-maestro.git`
+- URL do repositorio remoto no GitHub.
 
 Commit base auditado:
 

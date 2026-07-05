@@ -2,7 +2,7 @@
 
 # Plataforma de catalogação, pesquisa e difusão da música brasileira de concerto
 
-## Projeto do Maestro Tiago Santos
+## Projeto de referência
 
 ## Referência funcional principal
 
@@ -105,7 +105,7 @@ O Daniels combina quatro camadas principais:
 3. Interface pública com prévias.
 4. Área paga com dados completos e ferramentas adicionais.
 
-Para o projeto do Maestro Tiago Santos, a equivalência funcional deve seguir essa mesma lógica, mas com escopo brasileiro e metodologia própria.
+Para este projeto, a equivalência funcional deve seguir essa mesma lógica, mas com escopo brasileiro e metodologia própria.
 
 A plataforma brasileira deve ter como foco:
 
@@ -782,7 +782,7 @@ Tipo: atualização de instrumentação
 Obra: exemplo  
 Alteração: adicionada indicação de harpa opcional  
 Fonte: edição impressa consultada  
-Responsável: Tiago Santos  
+Responsável: editor responsável  
 Status: aprovado
 
 ## Benefícios
@@ -2384,7 +2384,7 @@ A referência Daniels oferece a raiz funcional:
 - Acesso institucional.
 - Possível API.
 
-O projeto do Maestro Tiago Santos deve preservar essa raiz funcional, mas avançar com uma camada própria e mais adequada ao contexto brasileiro:
+O projeto deve preservar essa raiz funcional, mas avançar com uma camada própria e mais adequada ao contexto brasileiro:
 
 - Banco de dados relacional.
 - Busca avançada por critérios musicais.
