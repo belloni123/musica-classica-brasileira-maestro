@@ -9,7 +9,8 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className="text-3xl font-semibold">Painel editorial</h1>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            Navegação inicial do admin. CRUD completo entra nas próximas etapas.
+            Use este painel para organizar o catálogo, revisar informações e
+            gerenciar acessos.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
