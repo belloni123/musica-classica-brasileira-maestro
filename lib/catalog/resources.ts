@@ -18,14 +18,14 @@ export const catalogResources: CatalogResource[] = [
         title: "Como usar",
         body: [
           "Use esta área para localizar detentores de fontes, materiais de execução, partituras, gravações, notas de programa e links de referência.",
-          "No MVP, o cadastro de fontes já existe no painel administrativo. A listagem pública pode ser alimentada aos poucos conforme os registros forem verificados.",
+          "A listagem pública reúne registros verificados e informações úteis para consulta, planejamento e contato institucional.",
         ],
       },
       {
         title: "Dados recomendados",
         body: [
           "Nome oficial, tipo de instituição, cidade, estado, país, site, e-mail, pessoa de contato, condições de acesso e data da última verificação.",
-          "Quando uma obra tiver materiais associados, o vínculo deve apontar para a fonte cadastrada em vez de repetir informações soltas.",
+          "Obras com materiais associados devem apontar para a fonte cadastrada em vez de repetir informações soltas.",
         ],
       },
     ],

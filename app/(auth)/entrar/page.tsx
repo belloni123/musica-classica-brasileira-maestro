@@ -21,7 +21,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const errorMessage = params.error ? errorMessages[params.error] : null;
   const resetMessage = params.reset === "enviado" ? "Se o e-mail existir, enviaremos um link de recuperacao." : null;
   const signUpMessage =
-    params.cadastro === "admin" ? "Novas contas são criadas pela administração neste MVP." : null;
+    params.cadastro === "admin" ? "Novas contas são criadas pela administração da plataforma." : null;
 
   return (
     <div className="mx-auto grid w-full max-w-md gap-6">

@@ -31,8 +31,8 @@ export function SiteFooter() {
         <section>
           <h2 className="font-semibold uppercase">Projeto</h2>
           <p className="mt-2 leading-6">
-            Catálogo brasileiro preparado para repertório, instrumentação, fontes, referências e
-            acesso por assinatura.
+            Catálogo brasileiro dedicado a repertório, instrumentação, fontes, referências e acesso
+            por assinatura.
           </p>
         </section>
       </div>

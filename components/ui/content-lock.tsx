@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 
 export function ContentLock({
   title = "Dados completos para assinantes",
-  description = "Instrumentação detalhada, fontes, referências, disponibilidade e notas de performance serão liberadas por plano.",
+  description = "Instrumentação detalhada, fontes, referências, disponibilidade e notas de performance fazem parte do acesso completo.",
 }: {
   title?: string;
   description?: string;
@@ -23,7 +23,7 @@ export function ContentLock({
       </div>
       <div>
         <Button asChild size="sm" variant="secondary">
-          <Link href="/planos">Ver planos futuros</Link>
+          <Link href="/planos">Ver planos</Link>
         </Button>
       </div>
     </Card>

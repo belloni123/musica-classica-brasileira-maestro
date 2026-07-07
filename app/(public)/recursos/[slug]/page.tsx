@@ -39,7 +39,7 @@ async function fetchSourceHolders() {
   } catch (error) {
     return {
       sources: [] as SourceHolderRow[],
-      error: error instanceof Error ? error.message : "Fontes ainda não disponíveis.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar as fontes.",
     };
   }
 }
@@ -89,7 +89,7 @@ export default async function ResourcePage({ params }: PageProps) {
             <Card className="text-sm text-[var(--muted-foreground)]">{sourceData.error}</Card>
           ) : sourceData.sources.length === 0 ? (
             <Card className="text-sm text-[var(--muted-foreground)]">
-              Nenhuma fonte ativa publicada ainda.
+              Nenhuma fonte ativa publicada.
             </Card>
           ) : (
             <div className="grid gap-3 md:grid-cols-2">

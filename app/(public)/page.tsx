@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Archive, BookOpen, LibraryBig, LogIn, Play, Search } from "lucide-react";
+import { Archive, BookOpen, LibraryBig, LogIn, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -14,17 +14,13 @@ export default function HomePage() {
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
             Um catálogo para encontrar compositores, obras, formações, duração, instrumentação,
-            fontes e caminhos de programação em uma base preparada para assinatura.
+            fontes e caminhos de programação em uma plataforma de acesso especializado.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button
-              asChild
-              className="w-full border-[var(--primary)] bg-[var(--primary)] !text-[#fcfbf8] sm:w-auto"
-              size="lg"
-            >
+            <Button asChild className="w-full sm:w-auto" size="lg">
               <Link href="/buscar">
-                <Search className="shrink-0 text-[#fcfbf8]" size={18} aria-hidden="true" />
-                <span className="text-[#fcfbf8]">Pesquisa simples</span>
+                <Search className="shrink-0" size={18} aria-hidden="true" />
+                Pesquisa simples
               </Link>
             </Button>
             <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
@@ -69,25 +65,23 @@ export default function HomePage() {
       <section className="grid gap-5">
         <div className="max-w-3xl">
           <h2 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)]">
-            Apresentação do projeto
+            Conheça a plataforma
           </h2>
           <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-            Espaço reservado para o maestro apresentar a proposta, o valor musicológico da base e o
-            caminho de assinatura.
+            O maestro apresenta a proposta, o valor musicológico da base e sua contribuição para a
+            pesquisa, a programação e a difusão da música brasileira de concerto.
           </p>
         </div>
         <div className="aspect-video w-full overflow-hidden rounded-md border border-[var(--border-strong)] bg-[var(--foreground)]">
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center text-white">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-white/10">
-              <Play size={28} aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-xl font-semibold">Vídeo do YouTube</p>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/75">
-                Quando o vídeo estiver pronto, substituímos este bloco pelo embed oficial do YouTube.
-              </p>
-            </div>
-          </div>
+          <iframe
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="h-full w-full"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            src="https://www.youtube.com/embed/jfVPaGI-V1w"
+            title="Apresentação da Música Brasileira de Concerto"
+          />
         </div>
       </section>
 
@@ -99,17 +93,17 @@ export default function HomePage() {
             <li>Pesquisa avançada por duração, formação, instrumentação, coro, solistas e recortes curatoriais.</li>
             <li>Índice alfabético de compositores publicados.</li>
             <li>Links entre obras, fontes, acervos, referências e materiais disponíveis.</li>
-            <li>Base preparada para assinatura, usuários institucionais e expansão editorial.</li>
+            <li>Acesso organizado para assinantes, instituições e equipe editorial.</li>
           </ul>
         </Card>
         <Card className="bg-[color-mix(in_srgb,var(--catalog-blue)_7%,var(--surface))]">
-          <h2 className="text-2xl font-normal">Acesso MVP</h2>
+          <h2 className="text-2xl font-normal">Acesso à plataforma</h2>
           <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-            Nesta fase, contas são criadas pela administração. Depois, esta área receberá planos,
-            checkout e assinatura automática.
+            Contas são liberadas pela administração conforme o perfil de uso: pesquisa, curadoria,
+            edição ou acesso institucional.
           </p>
           <Button asChild className="mt-5" size="sm" variant="secondary">
-            <Link href="/planos">Ver assinatura</Link>
+            <Link href="/planos">Ver acesso</Link>
           </Button>
         </Card>
       </section>

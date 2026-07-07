@@ -22,14 +22,14 @@ export const roleLabels: Record<AppRole, string> = {
   admin: "Super admin",
 };
 
-export const mvpAssignableRoles = [
+export const assignableRoles = [
   "subscriber_individual",
   "admin",
   "editor",
   "reviewer",
 ] as const satisfies readonly AppRole[];
 
-export type MvpAssignableRole = (typeof mvpAssignableRoles)[number];
+export type AssignableRole = (typeof assignableRoles)[number];
 
 export function canAccessAdmin(role?: AppRole | null) {
   return role === "admin" || role === "editor" || role === "reviewer";

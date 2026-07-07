@@ -28,7 +28,7 @@ async function fetchSavedSearches(userId: string) {
   } catch (error) {
     return {
       searches: [] as SavedSearchRow[],
-      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar as buscas salvas.",
     };
   }
 }
@@ -42,7 +42,7 @@ export default async function SavedSearchesPage() {
       <h1 className="text-3xl font-semibold">Buscas salvas</h1>
       {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
       {searches.length === 0 ? (
-        <EmptyState title="Nenhuma busca salva" description="A tabela e a RLS estão prontas para buscas salvas próprias do usuário." />
+        <EmptyState title="Nenhuma busca salva" description="Buscas salvas aparecem aqui para consulta posterior." />
       ) : (
         <div className="grid gap-3">
           {searches.map((search) => (

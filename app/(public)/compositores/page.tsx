@@ -53,7 +53,7 @@ async function fetchPublishedComposers(letter: string) {
   } catch (error) {
     return {
       composers: [] as ComposerRow[],
-      error: error instanceof Error ? error.message : "Base ainda não conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar os compositores.",
     };
   }
 }
@@ -106,7 +106,7 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
       {composers.length === 0 ? (
         <EmptyState
           title="Nenhum compositor publicado"
-          description="A listagem será preenchida quando o Supabase real estiver configurado e houver registros publicados."
+          description="Nenhum compositor está disponível nesta seleção."
         />
       ) : (
         <div className="grid gap-6">

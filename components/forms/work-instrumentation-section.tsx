@@ -60,7 +60,7 @@ export function WorkInstrumentationSection({
       <div>
         <h2 className="text-lg font-semibold">Instrumentação estruturada</h2>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-          Primeira versão para busca futura por instrumentos e quantidades.
+          Registre instrumentos, quantidades, dobramentos e observações de execução.
         </p>
       </div>
 

@@ -34,7 +34,7 @@ async function fetchImportBatches() {
   } catch (error) {
     return {
       batches: [] as ImportBatchRow[],
-      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar as importações.",
     };
   }
 }
@@ -48,13 +48,13 @@ export default async function AdminImportPage() {
       <section className="grid flex-1 gap-6">
         <AdminPageHeader
           title="Importação"
-          description="Controle preparado para lotes futuros. Upload, validação de CSV/XLSX e ingestão real ainda não estão ativos."
+          description="Acompanhe lotes de importação, validação de dados e registros processados."
         />
         {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
         {batches.length === 0 ? (
           <EmptyState
             title="Nenhum lote registrado"
-            description="As tabelas import_batches e import_rows já existem com RLS editorial."
+            description="Os lotes de importação aparecem aqui."
           />
         ) : (
           <div className="grid gap-3">

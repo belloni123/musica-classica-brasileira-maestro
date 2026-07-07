@@ -48,7 +48,7 @@ async function fetchFavorites(userId: string) {
   } catch (error) {
     return {
       favorites: [] as FavoriteRow[],
-      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar os favoritos.",
     };
   }
 }
@@ -62,7 +62,7 @@ export default async function FavoritesPage() {
       <h1 className="text-3xl font-semibold">Favoritos</h1>
       {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
       {favorites.length === 0 ? (
-        <EmptyState title="Nenhum favorito ainda" description="A tabela e a RLS já estão prontas para favoritos próprios do usuário." />
+        <EmptyState title="Nenhum favorito salvo" description="Obras marcadas como favoritas aparecem aqui." />
       ) : (
         <div className="grid gap-3">
           {favorites.map((favorite) => {

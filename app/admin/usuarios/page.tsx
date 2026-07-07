@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { createManagedUser } from "@/app/admin/usuarios/actions";
-import { mvpAssignableRoles, roleLabels, type AppRole } from "@/lib/permissions/roles";
+import { assignableRoles, roleLabels, type AppRole } from "@/lib/permissions/roles";
 import { requireSuperAdminAccess } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -80,7 +80,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         <div>
           <h1 className="text-3xl font-semibold">Usuários</h1>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            Criação manual de assinantes e administradores para o MVP.
+            Gerencie assinantes, equipe editorial e administradores da plataforma.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                 name="role"
                 required
               >
-                {mvpAssignableRoles.map((role) => (
+                {assignableRoles.map((role) => (
                   <option key={role} value={role}>
                     {roleLabels[role]}
                   </option>

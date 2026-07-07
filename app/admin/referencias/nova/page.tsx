@@ -13,7 +13,7 @@ export default async function NewReferencePage() {
       <section className="grid flex-1 gap-6">
         <AdminPageHeader
           title="Nova referência"
-          description="Cadastre referências bibliográficas para vínculo futuro com compositores e obras."
+          description="Cadastre referências bibliográficas para vínculo com compositores e obras."
         />
         <ReferenceForm action={createReference} submitLabel="Criar referência" />
       </section>

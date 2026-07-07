@@ -13,7 +13,7 @@ export default async function NewComposerPage() {
         <div>
           <h1 className="text-3xl font-semibold">Novo compositor</h1>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            O slug sera gerado automaticamente a partir do nome canonico.
+            O sistema gera o slug automaticamente a partir do nome canônico.
           </p>
         </div>
         <ComposerForm action={createComposer} submitLabel="Criar compositor" />

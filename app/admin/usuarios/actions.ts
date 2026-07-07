@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { insertAuditLog } from "@/lib/admin/logging";
-import { mvpAssignableRoles } from "@/lib/permissions/roles";
+import { assignableRoles } from "@/lib/permissions/roles";
 import { formString, normalizeEmail } from "@/lib/security/request";
 import { requireSuperAdminAccess } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -20,7 +20,7 @@ const createManagedUserSchema = z.object({
     .regex(/[a-z]/)
     .regex(/[A-Z]/)
     .regex(/[0-9]/),
-  role: z.enum(mvpAssignableRoles),
+  role: z.enum(assignableRoles),
 });
 
 function redirectWithError(code: string): never {

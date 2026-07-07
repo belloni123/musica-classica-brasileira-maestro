@@ -44,7 +44,7 @@ export default async function PublicWorkPage({ params }: PageProps) {
         <Card>
           <h2 className="text-2xl font-normal">Resumo público</h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-foreground)]">
-            {work.public_summary ?? "Resumo público ainda não informado."}
+            {work.public_summary ?? "Resumo público não informado."}
           </p>
         </Card>
         <Card>

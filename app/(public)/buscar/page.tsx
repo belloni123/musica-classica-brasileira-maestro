@@ -99,7 +99,7 @@ async function runSearch(composerQuery: string, titleQuery: string) {
     return {
       composers: [] as ComposerResult[],
       works: [] as WorkResult[],
-      error: error instanceof Error ? error.message : "Busca indisponível.",
+      error: error instanceof Error ? error.message : "Não foi possível concluir a busca.",
     };
   }
 }

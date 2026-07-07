@@ -29,7 +29,7 @@ export default async function NewWorkPage() {
       <section className="grid flex-1 gap-6">
         <AdminPageHeader
           title="Nova obra"
-          description="Cadastro inicial de obra. A instrumentação estruturada será tratada em seção própria."
+          description="Cadastre os dados gerais da obra e avance para a instrumentação estruturada."
         />
         <WorkForm action={createWork} composers={composers} submitLabel="Criar obra" />
       </section>

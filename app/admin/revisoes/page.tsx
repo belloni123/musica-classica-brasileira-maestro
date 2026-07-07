@@ -29,7 +29,7 @@ async function fetchRevisions() {
   } catch (error) {
     return {
       revisions: [] as RevisionRow[],
-      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar as revisões.",
     };
   }
 }

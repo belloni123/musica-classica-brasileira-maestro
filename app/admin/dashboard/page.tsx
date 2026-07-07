@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
           <Card>
             <h2 className="font-semibold">Operação</h2>
             <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-              Auditoria, importações futuras e segurança.
+              Auditoria, importações e segurança.
             </p>
           </Card>
         </div>

@@ -30,7 +30,7 @@ async function fetchLists(userId: string) {
   } catch (error) {
     return {
       lists: [] as RepertoireListRow[],
-      error: error instanceof Error ? error.message : "Base ainda nao conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar as listas.",
     };
   }
 }
@@ -44,7 +44,7 @@ export default async function ListsPage() {
       <h1 className="text-3xl font-semibold">Listas</h1>
       {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
       {lists.length === 0 ? (
-        <EmptyState title="Nenhuma lista criada" description="A estrutura de listas privadas está pronta; a criação entra em etapa futura." />
+        <EmptyState title="Nenhuma lista criada" description="Suas listas de repertório aparecem aqui." />
       ) : (
         <div className="grid gap-3">
           {lists.map((list) => (

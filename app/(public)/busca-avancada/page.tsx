@@ -152,7 +152,7 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
   } catch (error) {
     return {
       works: [] as WorkResult[],
-      error: error instanceof Error ? error.message : "Pesquisa avançada indisponível.",
+      error: error instanceof Error ? error.message : "Não foi possível concluir a pesquisa avançada.",
     };
   }
 }

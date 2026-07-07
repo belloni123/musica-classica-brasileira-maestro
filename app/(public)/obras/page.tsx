@@ -39,7 +39,7 @@ async function fetchPublishedWorks() {
   } catch (error) {
     return {
       works: [] as WorkRow[],
-      error: error instanceof Error ? error.message : "Base ainda não conectada.",
+      error: error instanceof Error ? error.message : "Não foi possível carregar as obras.",
     };
   }
 }
@@ -62,7 +62,7 @@ export default async function WorksPage() {
       {works.length === 0 ? (
         <EmptyState
           title="Nenhuma obra publicada"
-          description="A listagem será preenchida quando houver obras publicadas no Supabase."
+          description="Nenhuma obra está disponível nesta seleção."
         />
       ) : (
         <div className="grid gap-4">

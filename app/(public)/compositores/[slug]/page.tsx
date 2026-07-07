@@ -37,7 +37,7 @@ export default async function PublicComposerPage({ params }: PageProps) {
         <Card className="max-w-4xl">
           <h2 className="text-2xl font-normal">Biografia</h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-foreground)]">
-            {composer.long_biography ?? composer.short_biography ?? "Biografia ainda não informada."}
+            {composer.long_biography ?? composer.short_biography ?? "Biografia não informada."}
           </p>
         </Card>
       </div>

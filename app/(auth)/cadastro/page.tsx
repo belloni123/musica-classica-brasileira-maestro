@@ -11,13 +11,13 @@ export default function SignUpPage() {
           Acesso por cadastro administrativo
         </h1>
         <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-          Neste MVP, novas contas são criadas pela administração da plataforma.
+          Novas contas são criadas pela administração da plataforma.
         </p>
       </div>
       <Card className="p-6">
         <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-          Se você já recebeu um e-mail e senha de acesso, use a página única de login. Se ainda não
-          recebeu, solicite o cadastro ao responsável pela plataforma.
+          Se você já recebeu um e-mail e senha de acesso, use a página única de login. Para solicitar
+          acesso, fale com o responsável pela plataforma.
         </p>
         <Button asChild className="mt-4">
           <Link href="/entrar">Ir para login</Link>
