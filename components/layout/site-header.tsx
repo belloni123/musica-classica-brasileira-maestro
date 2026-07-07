@@ -65,7 +65,7 @@ export function SiteHeader() {
             </div>
           </div>
           <Link
-            className="flex items-center bg-[var(--catalog-blue)] px-4 text-xs font-semibold uppercase tracking-normal text-white"
+            className="flex items-center bg-[var(--catalog-blue)] px-4 text-xs font-semibold uppercase tracking-normal !text-white hover:bg-[var(--moss)]"
             href="/planos"
           >
             Assinar
