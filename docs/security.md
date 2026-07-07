@@ -1,6 +1,6 @@
 # Seguranca e boas praticas
 
-Este documento registra a postura de seguranca esperada para o projeto real. O modo demo e apenas uma vitrine navegavel com dados ficticios.
+Este documento registra a postura de seguranca esperada para o projeto real.
 
 ## Controles implementados no app
 
@@ -16,7 +16,7 @@ Este documento registra a postura de seguranca esperada para o projeto real. O m
 - Tempo minimo de resposta em autenticacao para reduzir pistas por timing.
 - Headers HTTP basicos: `nosniff`, `DENY` para iframe, referrer policy, permissions policy, COOP e HSTS.
 - RLS habilitado nas tabelas do Supabase.
-- `SUPABASE_SERVICE_ROLE_KEY` nao e importado nem usado pela aplicacao atual.
+- `SUPABASE_SERVICE_ROLE_KEY` e importado somente em modulo `server-only` para criacao administrativa de usuarios.
 
 ## Limite de tentativas
 
@@ -30,7 +30,7 @@ Esse mecanismo usa memoria do processo. Em producao com multiplas instancias, el
 
 ## Supabase Auth em producao
 
-Configurar antes de abrir cadastro real:
+Configurar antes de abrir cadastro publico real:
 
 - Confirmacao obrigatoria de e-mail.
 - Politica minima de senha forte.
@@ -48,6 +48,7 @@ Configurar antes de abrir cadastro real:
 - Publico anonimo so deve ler registros publicados e campos explicitamente publicos.
 - Dados de assinantes devem depender de permissao server-side e RLS, nao apenas bloqueio visual.
 - `service_role` deve ser usado apenas em rotinas server-side isoladas, nunca em componentes client-side.
+- A criacao de usuarios via `service_role` deve exigir `role = admin` no servidor antes de qualquer chamada ao Auth Admin.
 - Toda alteracao editorial relevante deve registrar `revision_history` e/ou `audit_logs`.
 
 ## GitHub e documentacao
@@ -63,9 +64,9 @@ Configurar antes de abrir cadastro real:
 Em Vercel ou Coolify:
 
 - Configurar variaveis sensiveis apenas no painel do provedor.
-- Separar ambientes de demo, staging e producao.
+- Separar ambientes de homologacao e producao.
 - Usar HTTPS obrigatorio.
-- Definir `NEXT_PUBLIC_DEMO_MODE=false` no projeto real.
+- Usar somente Supabase real no projeto publicado.
 - Revisar logs para nao imprimir credenciais, tokens ou payloads sensiveis.
 
 ## Pendencias recomendadas
@@ -75,4 +76,3 @@ Em Vercel ou Coolify:
 - Adicionar testes automatizados para permissoes e RLS.
 - Criar processo de revisao de secrets antes de releases.
 - Configurar alertas para picos de erro de login e tentativas bloqueadas.
-

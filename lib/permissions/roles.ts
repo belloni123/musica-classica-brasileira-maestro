@@ -11,8 +11,32 @@ export const appRoles = [
 
 export type AppRole = (typeof appRoles)[number];
 
+export const roleLabels: Record<AppRole, string> = {
+  user: "Usuário",
+  subscriber_individual: "Assinante individual",
+  subscriber_professional: "Assinante profissional",
+  institution_user: "Usuário institucional",
+  institution_admin: "Administrador institucional",
+  editor: "Editor",
+  reviewer: "Revisor",
+  admin: "Super admin",
+};
+
+export const mvpAssignableRoles = [
+  "subscriber_individual",
+  "admin",
+  "editor",
+  "reviewer",
+] as const satisfies readonly AppRole[];
+
+export type MvpAssignableRole = (typeof mvpAssignableRoles)[number];
+
 export function canAccessAdmin(role?: AppRole | null) {
   return role === "admin" || role === "editor" || role === "reviewer";
+}
+
+export function canManageUsers(role?: AppRole | null) {
+  return role === "admin";
 }
 
 export function canWriteEditorial(role?: AppRole | null) {

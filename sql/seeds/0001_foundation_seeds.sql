@@ -7,7 +7,7 @@ values
   ('institution_admin', 'Administrador institucional', 'Gestor de membros de uma organização assinante.'),
   ('editor', 'Editor musicológico', 'Pode cadastrar e editar dados editoriais.'),
   ('reviewer', 'Revisor', 'Pode revisar dados e acessar itens em revisão.'),
-  ('admin', 'Administrador geral', 'Pode gerenciar dados, usuários e configurações.')
+  ('admin', 'Super admin', 'Pode gerenciar dados, usuários e configurações.')
 on conflict (role) do update
 set label = excluded.label,
     description = excluded.description;

@@ -246,7 +246,7 @@ Resultado obtido:
 
 - Criar `.env.local` com Supabase real.
 - Aplicar migration e seed no Supabase real, caso ainda nao tenham sido aplicados.
-- Criar usuarios de teste.
+- Criar usuarios de validacao.
 - Promover papeis para `admin`, `editor`, `reviewer` e `user`.
 - Reexecutar esta bateria em ambiente real.
 - Confirmar `revision_history` e `audit_logs` com queries SQL.

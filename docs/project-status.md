@@ -26,8 +26,10 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - Painel de importacao em modo leitura/preparacao.
 - Painel de revisoes em modo leitura.
 - Preparacao tecnica para paywall.
+- Fundacao de banco para planos e assinaturas futuras.
+- Gestao manual de usuarios do MVP por super admin.
 - Preparacao tecnica para documentos de busca externa.
-- Modo demonstracao navegavel com dados ficticios via `NEXT_PUBLIC_DEMO_MODE=true`.
+- Ambiente de producao exige Supabase real configurado.
 - Endurecimento inicial de seguranca para autenticacao, headers HTTP e higiene de repositorio.
 
 ## Consistencia revisada
@@ -40,12 +42,13 @@ Atualizado apos a implementacao incremental da fundacao, CRUDs editoriais inicia
 - Paginas pessoais filtram explicitamente por `user_id` alem de dependerem da RLS.
 - `/admin/importacao` apenas lista lotes existentes; nao faz upload, parsing ou escrita automatica.
 - `/admin/revisoes` apenas lista `revision_history` e fica sob protecao editorial do layout admin.
-- `SUPABASE_SERVICE_ROLE_KEY` nao e usado pela aplicacao atual.
+- `SUPABASE_SERVICE_ROLE_KEY` e usado apenas em server action de super admin para criar usuarios no Supabase Auth.
 - Fluxos de login, cadastro e recuperacao possuem validacao server-side, honeypot e limite inicial de tentativas.
+- Auto-cadastro publico fica desativado no MVP; contas sao criadas pelo painel de usuarios.
 
-## Modo demonstracao
+## Ambiente de dados
 
-Quando `NEXT_PUBLIC_DEMO_MODE=true`, o projeto usa um cliente Supabase simulado em `lib/demo/supabase.ts` e dados ficticios em `lib/demo/data.ts`.
+O projeto publicado deve usar um projeto Supabase real. O modo de dados ficticios foi removido do runtime de producao.
 
 Esse modo permite navegar pelas paginas publicas, area de conta e painel administrativo sem Supabase real. Ele serve apenas para avaliacao de interface e fluxo; dados enviados em formularios nao sao persistidos.
 
@@ -68,12 +71,14 @@ Esse modo permite navegar pelas paginas publicas, area de conta e painel adminis
 2. Aplicar migrations em ordem:
    - `sql/migrations/0001_initial_foundation.sql`
    - `sql/migrations/0002_instrument_active.sql`
+   - `sql/migrations/0003_subscription_foundation.sql`
 3. Aplicar seed:
    - `sql/seeds/0001_foundation_seeds.sql`
-4. Criar usuario pelo fluxo `/cadastro`.
+4. Criar o primeiro usuario pelo Supabase Auth ou fluxo temporario controlado.
 5. Promover o usuario para `admin` via SQL.
-6. Rodar validacoes locais.
-7. Testar manualmente CRUDs com `admin`, `editor`, `reviewer`, usuario comum e visitante.
+6. Usar `/admin/usuarios` para criar assinantes e novos administradores.
+7. Rodar validacoes locais.
+8. Testar manualmente CRUDs com `admin`, `editor`, `reviewer`, assinante, usuario comum e visitante.
 
 ## Ultimo estado de validacao local
 

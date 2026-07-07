@@ -11,6 +11,11 @@
   --border-strong: rgba(28, 28, 28, 0.4);
   --surface: #fbf8f0;
   --surface-strong: #fcfbf8;
+  --nav-active: #d9d9d9;
+  --footer-bg: #cdcdcd;
+  --catalog-blue: #07589b;
+  --panel-blue: #d7dee7;
+  --help-blue: #eff7ff;
   --primary: #1c1c1c;
   --primary-foreground: #fcfbf8;
   --accent: #7d3028;

@@ -14,6 +14,7 @@ const eslintConfig = [
     ignores: [
       ".next/**",
       ".vercel/**",
+      ".pnpm-store/**",
       "node_modules/**",
       "next-env.d.ts",
       "pnpm-lock.yaml",

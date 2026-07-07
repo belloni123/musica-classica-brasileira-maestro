@@ -31,10 +31,12 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
+    "next-env.d.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".pnpm-store",
+    ".vercel",
+    ".next"
   ]
 }

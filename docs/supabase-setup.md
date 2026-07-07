@@ -24,7 +24,7 @@ Crie um arquivo `.env.local` na raiz do projeto local com base em `.env.example`
 Para esta etapa, preencha:
 
 ```env
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://obras.maestrothiagosantos.com.br
 NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=SUA_ANON_KEY
 ```
@@ -94,7 +94,7 @@ Ha duas opcoes.
 Opcao A: pela aplicacao local
 
 1. Rode o projeto com `.env.local` configurado.
-2. Acesse `http://localhost:3000/cadastro`.
+2. Acesse `/cadastro` no ambiente local ou publicado.
 3. Crie a primeira conta.
 
 Opcao B: pelo painel Supabase

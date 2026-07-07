@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Archive, BookOpen, LibraryBig, Search, ShieldCheck } from "lucide-react";
+import { Archive, BookOpen, LibraryBig, LogIn, Play, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -8,13 +8,13 @@ export default function HomePage() {
     <div className="grid gap-16">
       <section className="grid gap-10 py-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-16">
         <div className="max-w-3xl">
-          <p className="mb-4 text-sm text-[var(--accent)]">Base musicológica brasileira</p>
+          <p className="mb-4 text-sm text-[var(--accent)]">Ferramenta de repertório brasileiro</p>
           <h1 className="text-4xl font-semibold leading-none text-[var(--foreground-strong)] sm:text-5xl lg:text-6xl">
-            Música brasileira de concerto, catalogada com método.
+            Música brasileira de concerto, pesquisável por método.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted-foreground)]">
-            Um catálogo editorial para aproximar compositores, obras, instrumentação, fontes e
-            critérios de confiabilidade em uma base relacional preparada para pesquisa.
+            Um catálogo para encontrar compositores, obras, formações, duração, instrumentação,
+            fontes e caminhos de programação em uma base preparada para assinatura.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button
@@ -24,13 +24,13 @@ export default function HomePage() {
             >
               <Link href="/buscar">
                 <Search className="shrink-0 text-[#fcfbf8]" size={18} aria-hidden="true" />
-                <span className="text-[#fcfbf8]">Buscar catálogo</span>
+                <span className="text-[#fcfbf8]">Pesquisa simples</span>
               </Link>
             </Button>
             <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
-              <Link href="/admin/dashboard">
-                <ShieldCheck size={18} aria-hidden="true" />
-                Painel editorial
+              <Link href="/busca-avancada">
+                <LogIn size={18} aria-hidden="true" />
+                Pesquisa avançada
               </Link>
             </Button>
           </div>
@@ -60,10 +60,58 @@ export default function HomePage() {
               </div>
             ))}
             <div className="mt-2 rounded-xl border border-dashed border-[var(--border-strong)] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
-              Instrumentação completa, fontes e histórico editorial entram como camadas verificáveis.
+              Busca simples, busca avançada, índice de compositores, recursos técnicos e acesso por assinatura.
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="grid gap-5">
+        <div className="max-w-3xl">
+          <h2 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)]">
+            Apresentação do projeto
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
+            Espaço reservado para o maestro apresentar a proposta, o valor musicológico da base e o
+            caminho de assinatura.
+          </p>
+        </div>
+        <div className="aspect-video w-full overflow-hidden rounded-md border border-[var(--border-strong)] bg-[var(--foreground)]">
+          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center text-white">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-white/10">
+              <Play size={28} aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-xl font-semibold">Vídeo do YouTube</p>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/75">
+                Quando o vídeo estiver pronto, substituímos este bloco pelo embed oficial do YouTube.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-[1fr_320px]">
+        <Card>
+          <h2 className="text-2xl font-normal">A plataforma oferece</h2>
+          <ul className="mt-4 grid gap-3 text-sm leading-6 text-[var(--muted-foreground)]">
+            <li>Busca rápida por compositor, título de obra ou palavra-chave.</li>
+            <li>Pesquisa avançada por duração, formação, instrumentação, coro, solistas e recortes curatoriais.</li>
+            <li>Índice alfabético de compositores publicados.</li>
+            <li>Links entre obras, fontes, acervos, referências e materiais disponíveis.</li>
+            <li>Base preparada para assinatura, usuários institucionais e expansão editorial.</li>
+          </ul>
+        </Card>
+        <Card className="bg-[color-mix(in_srgb,var(--catalog-blue)_7%,var(--surface))]">
+          <h2 className="text-2xl font-normal">Acesso MVP</h2>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
+            Nesta fase, contas são criadas pela administração. Depois, esta área receberá planos,
+            checkout e assinatura automática.
+          </p>
+          <Button asChild className="mt-5" size="sm" variant="secondary">
+            <Link href="/planos">Ver assinatura</Link>
+          </Button>
+        </Card>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">

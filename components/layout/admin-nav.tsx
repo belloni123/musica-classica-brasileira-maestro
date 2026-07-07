@@ -11,6 +11,7 @@ import {
   Upload,
   Users,
 } from "lucide-react";
+import { getCurrentProfile, hasUserManagementAccess } from "@/lib/auth/session";
 
 const adminItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: Gauge },
@@ -22,14 +23,20 @@ const adminItems = [
   { href: "/admin/taxonomias", label: "Taxonomias", icon: Tags },
   { href: "/admin/importacao", label: "Importação", icon: Upload },
   { href: "/admin/revisoes", label: "Revisões", icon: FileClock },
+];
+
+const superAdminItems = [
   { href: "/admin/usuarios", label: "Usuários", icon: ClipboardList },
 ];
 
-export function AdminNav() {
+export async function AdminNav() {
+  const profile = await getCurrentProfile();
+  const items = hasUserManagementAccess(profile) ? [...adminItems, ...superAdminItems] : adminItems;
+
   return (
     <aside className="w-full shrink-0 border-b border-[var(--border)] pb-4 lg:w-64 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-5">
       <nav className="grid gap-1" aria-label="Administração">
-        {adminItems.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon;
 
           return (

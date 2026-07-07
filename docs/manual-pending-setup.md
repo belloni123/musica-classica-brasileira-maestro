@@ -13,7 +13,7 @@ Estas etapas exigem acesso ao painel do Supabase, Coolify, Hostinger ou credenci
 - [ ] Aplicar `sql/seeds/0001_foundation_seeds.sql`.
 - [ ] Criar o primeiro usuario pelo fluxo `/cadastro`.
 - [ ] Promover o primeiro usuario para `admin` via SQL.
-- [ ] Criar usuarios/perfis de teste para `editor`, `reviewer` e `user`.
+- [ ] Criar usuarios reais iniciais conforme a operacao do MVP.
 - [ ] Testar RLS com perfis reais.
 - [ ] Manter `service_role key` apenas para rotinas server-side futuras, nunca em componente client-side.
 - [ ] Ativar confirmacao de e-mail, politica de senha forte e protecoes anti-bot/rate limit do Supabase Auth antes de abrir cadastro real.
@@ -40,7 +40,7 @@ where email = 'SEU_EMAIL';
 - [ ] Rodar deploy inicial.
 - [ ] Garantir HTTPS obrigatorio.
 - [ ] Definir variaveis sensiveis somente no painel do Coolify.
-- [ ] Confirmar `NEXT_PUBLIC_DEMO_MODE=false` no ambiente real.
+- [ ] Confirmar que o ambiente real aponta para Supabase real.
 
 ## Seguranca antes de producao
 
@@ -63,16 +63,7 @@ pnpm start
 NEXT_PUBLIC_SITE_URL=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_DEMO_MODE=false
 ```
-
-Para publicar uma demo navegavel sem Supabase real, usar:
-
-```env
-NEXT_PUBLIC_DEMO_MODE=true
-```
-
-Nesse modo os dados sao ficticios e nao persistentes.
 
 ## Variaveis futuras
 

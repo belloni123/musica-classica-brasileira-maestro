@@ -8,6 +8,7 @@ Este diretorio concentra a documentacao tecnica e operacional da plataforma.
 - `security.md`: postura de seguranca, controles implementados e checklist de producao.
 - `manual-pending-setup.md`: itens que dependem de configuracao manual em servicos externos.
 - `supabase-setup.md`: passo a passo para configurar Supabase Cloud.
+- `production-deploy.md`: checklist de publicacao em Coolify e Supabase.
 - `database.md`: visao geral do schema.
 - `permissions.md`: papeis e regras de acesso.
 
@@ -22,6 +23,7 @@ Este diretorio concentra a documentacao tecnica e operacional da plataforma.
 - `taxonomy-crud.md`: taxonomias.
 - `import-prep.md`: preparacao para importacao.
 - `billing-prep.md`: preparacao para assinatura.
+- `daniels-orchestral-audit.md`: auditoria de referencia do Daniels' Orchestral Music Online.
 - `meilisearch-prep.md`: preparacao para busca dedicada.
 
 ## Especificacoes de referencia
@@ -38,4 +40,3 @@ Nao versionar:
 - dumps de banco com dados reais.
 - exports contendo e-mails, telefones, enderecos ou dados pessoais.
 - chaves privadas, tokens, certificados ou credenciais de servicos.
-

@@ -4,7 +4,7 @@ Use este checklist depois de aplicar a migration e o seed no Supabase real.
 
 ## Preparacao
 
-Crie quatro usuarios de teste:
+Crie quatro usuarios de validacao:
 
 - visitante: sem login;
 - usuario comum: `role = user`;
