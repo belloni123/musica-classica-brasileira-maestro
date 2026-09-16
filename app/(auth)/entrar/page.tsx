@@ -1,4 +1,5 @@
 import { signIn } from "@/lib/auth/actions";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ const errorMessages: Record<string, string> = {
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const params = await searchParams;
   const errorMessage = params.error ? errorMessages[params.error] : null;
-  const resetMessage = params.reset === "enviado" ? "Se o e-mail existir, enviaremos um link de recuperacao." : null;
+  const resetMessage = params.reset === "enviado" ? "Se o e-mail existir, enviaremos um link de recuperação. Abra-o neste mesmo navegador." : params.reset === "concluido" ? "Senha atualizada. Entre com sua nova senha." : null;
   const signUpMessage =
     params.cadastro === "admin" ? "Novas contas são criadas pela administração da plataforma." : null;
 
@@ -65,6 +66,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <Input autoComplete="current-password" name="password" required type="password" />
           </label>
           <Button type="submit">Entrar</Button>
+          <Link href="/recuperar-senha" className="text-sm underline">Esqueci minha senha</Link>
         </form>
       </Card>
     </div>

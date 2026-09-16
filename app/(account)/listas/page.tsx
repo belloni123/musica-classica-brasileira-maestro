@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { createList } from "@/app/(account)/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireAuthenticatedUser } from "@/lib/auth/session";
@@ -42,13 +45,18 @@ export default async function ListsPage() {
   return (
     <div className="grid gap-6">
       <h1 className="text-3xl font-semibold">Listas</h1>
+      <Card><form action={createList} className="grid gap-3">
+        <label>Nome da nova lista<Input name="name" maxLength={120} required /></label>
+        <label>Descrição<Input name="description" maxLength={1000} /></label>
+        <Button type="submit">Criar lista privada</Button>
+      </form></Card>
       {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
-      {lists.length === 0 ? (
+      {error ? null : lists.length === 0 ? (
         <EmptyState title="Nenhuma lista criada" description="Suas listas de repertório aparecem aqui." />
       ) : (
         <div className="grid gap-3">
           {lists.map((list) => (
-            <Link href="/listas" key={list.id}>
+            <Link href={`/listas/${list.id}`} key={list.id}>
               <Card className="transition-colors hover:border-[var(--primary)]">
                 <h2 className="font-semibold">{list.name}</h2>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">

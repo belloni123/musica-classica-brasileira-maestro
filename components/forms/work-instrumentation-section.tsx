@@ -168,6 +168,9 @@ export function WorkInstrumentationSection({
             <Input name="quantity_text" placeholder="Ex.: 2 ou 2-3" />
           </label>
         </div>
+        <label className="grid gap-2 text-sm font-medium">Função
+          <select name="role" className="h-10 rounded-md border bg-white px-3"><option value="">Conjunto</option><option value="solista">Solista</option></select>
+        </label>
         <div className="grid gap-3 md:grid-cols-4">
           <label className="flex items-center gap-2 text-sm font-medium">
             <input defaultChecked name="required" type="checkbox" />

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
@@ -11,16 +12,21 @@ export const dynamic = "force-dynamic";
 export default async function PublicComposerPage({ params }: PageProps) {
   const { slug } = await params;
 
-  try {
+
     const supabase = await createClient();
     const { data: composer, error } = await supabase
       .from("composers")
-      .select("display_name,birth_year,death_year,nationality,short_biography,long_biography")
+      .select("id,display_name,birth_year,death_year,nationality,short_biography,long_biography")
       .eq("slug", slug)
       .eq("publication_status", "published")
-      .single();
+      .maybeSingle();
 
-    if (error || !composer) notFound();
+    if (error) throw new Error("Não foi possível consultar o compositor.");
+    if (!composer) notFound();
+    const { data: works, error: worksError } = await supabase.from("works")
+      .select("id,display_title,slug,composition_year_start").eq("composer_id", composer.id)
+      .eq("publication_status", "published").order("display_title").limit(100);
+    if (worksError) throw new Error("Não foi possível carregar as obras.");
 
     return (
       <div className="grid gap-8">
@@ -40,9 +46,11 @@ export default async function PublicComposerPage({ params }: PageProps) {
             {composer.long_biography ?? composer.short_biography ?? "Biografia não informada."}
           </p>
         </Card>
+        <section className="grid gap-3"><h2 className="text-2xl">Obras publicadas</h2>
+          {works?.map(work => <Link href={`/obras/${work.slug}`} key={work.id}><Card>{work.display_title} · {work.composition_year_start ?? "s/d"}</Card></Link>)}
+          {!works?.length && <p>Nenhuma obra publicada deste compositor.</p>}
+          <Link className="underline" href={`/buscar?compositor=${encodeURIComponent(composer.display_name)}`}>Pesquisar todas as obras</Link>
+        </section>
       </div>
     );
-  } catch {
-    notFound();
-  }
 }

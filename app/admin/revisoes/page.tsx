@@ -9,7 +9,7 @@ type RevisionRow = {
   entity_type: string;
   entity_id: string;
   field_name: string;
-  changed_at: string;
+  created_at: string;
 };
 
 async function fetchRevisions() {
@@ -17,8 +17,8 @@ async function fetchRevisions() {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("revision_history")
-      .select("id,entity_type,entity_id,field_name,changed_at")
-      .order("changed_at", { ascending: false })
+      .select("id,entity_type,entity_id,field_name,created_at")
+      .order("created_at", { ascending: false })
       .limit(50);
 
     if (error) {
@@ -56,7 +56,7 @@ export default async function AdminReviewsPage() {
                   {revision.entity_type} · {revision.field_name}
                 </h2>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  Registro {revision.entity_id} · {new Date(revision.changed_at).toLocaleString("pt-BR")}
+                  Registro {revision.entity_id} · {new Date(revision.created_at).toLocaleString("pt-BR")}
                 </p>
               </Card>
             ))}

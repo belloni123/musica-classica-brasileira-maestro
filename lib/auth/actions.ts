@@ -7,6 +7,7 @@ import { enforceAuthRateLimit, keepMinimumAuthResponseTime } from "@/lib/securit
 import { isHoneypotFilled, normalizeEmail } from "@/lib/security/request";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile, hasEditorialAccess } from "@/lib/auth/session";
+import { publicEnv } from "@/lib/env";
 
 const signInSchema = z.object({
   email: z.string().email().max(254),
@@ -99,7 +100,28 @@ export async function resetPassword(formData: FormData) {
 
   const supabase = await createClient();
 
-  await supabase.auth.resetPasswordForEmail(parsed.data.email);
+  const siteUrl = publicEnv.NEXT_PUBLIC_SITE_URL ?? "https://obras.maestrothiagosantos.com.br";
+  await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: new URL("/auth/callback", siteUrl).toString(),
+  });
   await keepMinimumAuthResponseTime(startedAt);
   redirect("/entrar?reset=enviado");
+}
+
+export async function updatePassword(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  const confirmation = String(formData.get("confirmation") ?? "");
+  if (password !== confirmation || !z.string().min(10).max(128).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/).safeParse(password).success) {
+    redirect("/nova-senha?error=validacao");
+  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/recuperar-senha?error=sessao");
+  const limit = await enforceAuthRateLimit("reset-password", user.id);
+  if (!limit.allowed) redirect("/nova-senha?error=limite");
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) redirect("/nova-senha?error=atualizacao");
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/entrar?reset=concluido");
 }

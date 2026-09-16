@@ -2,18 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { changedRows, insertAuditLog, insertRevisionRows } from "@/lib/admin/logging";
 import { requireEditorialWriteAccess } from "@/lib/auth/session";
 import { slugify } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/server";
-import { parseTaxonomyFormData, type TaxonomyFormValues } from "@/lib/validators/taxonomy";
-
-type TaxonomyRow = Omit<TaxonomyFormValues, "slug"> & {
-  id: string;
-  slug: string;
-};
-
-const trackedFields: Array<keyof TaxonomyRow> = ["name", "type", "slug", "description"];
+import { parseTaxonomyFormData } from "@/lib/validators/taxonomy";
 
 async function buildUniqueSlug(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -37,7 +29,7 @@ async function buildUniqueSlug(
 }
 
 export async function createTaxonomy(formData: FormData) {
-  const { user } = await requireEditorialWriteAccess();
+  await requireEditorialWriteAccess();
   const values = parseTaxonomyFormData(formData);
   const supabase = await createClient();
   const slug = await buildUniqueSlug(supabase, values.name, values.slug);
@@ -48,26 +40,12 @@ export async function createTaxonomy(formData: FormData) {
     throw new Error(`Erro ao criar taxonomia: ${error?.message ?? "sem retorno"}`);
   }
 
-  await insertRevisionRows(supabase, user.id, "taxonomy", data.id, [
-    {
-      field_name: "taxonomy",
-      previous_value: null,
-      new_value: payload,
-      reason: "taxonomy_created",
-    },
-  ]);
-  await insertAuditLog(supabase, user.id, "taxonomy.created", "taxonomy", data.id, {
-    name: values.name,
-    type: values.type,
-    slug,
-  });
-
   revalidatePath("/admin/taxonomias");
   redirect(`/admin/taxonomias/${data.id}/editar`);
 }
 
 export async function updateTaxonomy(taxonomyId: string, formData: FormData) {
-  const { user } = await requireEditorialWriteAccess();
+  await requireEditorialWriteAccess();
   const values = parseTaxonomyFormData(formData);
   const supabase = await createClient();
   const { data: previous, error: previousError } = await supabase
@@ -87,19 +65,6 @@ export async function updateTaxonomy(taxonomyId: string, formData: FormData) {
   if (error) {
     throw new Error(`Erro ao atualizar taxonomia: ${error.message}`);
   }
-
-  await insertRevisionRows(
-    supabase,
-    user.id,
-    "taxonomy",
-    taxonomyId,
-    changedRows(previous as TaxonomyRow, payload, trackedFields, "taxonomy_updated"),
-  );
-  await insertAuditLog(supabase, user.id, "taxonomy.updated", "taxonomy", taxonomyId, {
-    name: values.name,
-    type: values.type,
-    slug,
-  });
 
   revalidatePath("/admin/taxonomias");
   revalidatePath(`/admin/taxonomias/${taxonomyId}/editar`);

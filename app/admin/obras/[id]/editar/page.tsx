@@ -68,13 +68,14 @@ export default async function EditWorkPage({ params }: PageProps) {
   const { id } = await params;
   const supabase = await createClient();
   const [{ data: work, error }, composers, instruments, instrumentationRows] = await Promise.all([
-    supabase.from("works").select("*").eq("id", id).single(),
+    supabase.rpc("get_editorial_record", { entity: "work", record_id: id }),
     fetchComposers(),
     fetchInstruments(),
     fetchInstrumentationRows(id),
   ]);
 
-  if (error || !work) {
+  if (error) throw new Error("Não foi possível carregar o registro editorial.");
+  if (!work) {
     notFound();
   }
 

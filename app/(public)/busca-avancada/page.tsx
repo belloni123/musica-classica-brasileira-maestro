@@ -1,10 +1,15 @@
 import Link from "next/link";
-import { Printer, RotateCcw, Search } from "lucide-react";
+import { SaveSearch } from "@/components/catalog/save-search";
+import { RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
+
+import { PrintButton } from "@/components/ui/print-button";
+import { SearchPagination } from "@/components/ui/search-pagination";
+import { cleanText, cleanNumber, searchPattern, validateSearchRanges, pageNumber } from "@/lib/search/input";
 
 type AdvancedSearchPageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -22,27 +27,9 @@ type WorkResult = {
   composers: { display_name: string } | Array<{ display_name: string }> | null;
 };
 
-type ComposerFilterRow = {
-  id: string;
-};
-
 export const dynamic = "force-dynamic";
 
 const RESULT_LIMIT = 50;
-
-function cleanText(value?: string) {
-  return String(value ?? "")
-    .normalize("NFKC")
-    .replace(/[^\p{L}\p{N}\s'".-]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 100);
-}
-
-function cleanNumber(value?: string) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
 
 function isChecked(value?: string) {
   return value === "on" || value === "true" || value === "1";
@@ -54,47 +41,7 @@ function composerName(value: WorkResult["composers"]) {
 }
 
 function hasAnySearch(params: Record<string, string | undefined>) {
-  return Object.values(params).some((value) => cleanText(value).length > 0 || isChecked(value));
-}
-
-async function findComposerIds(params: Record<string, string | undefined>) {
-  const name = cleanText(params.compositor);
-  const nationality = cleanText(params.nacionalidade);
-  const birthFrom = cleanNumber(params.nascimento_de);
-  const birthTo = cleanNumber(params.nascimento_ate);
-  const deathFrom = cleanNumber(params.falecimento_de);
-  const deathTo = cleanNumber(params.falecimento_ate);
-  const gender = cleanText(params.genero);
-
-  if (!name && !nationality && !birthFrom && !birthTo && !deathFrom && !deathTo && !gender) {
-    return null;
-  }
-
-  const supabase = await createClient();
-  let request = supabase
-    .from("composers")
-    .select("id")
-    .eq("publication_status", "published")
-    .limit(500);
-
-  if (name) {
-    request = request.or(`canonical_name.ilike.%${name}%,display_name.ilike.%${name}%,surname.ilike.%${name}%`);
-  }
-
-  if (nationality) {
-    request = request.or(`nationality.ilike.%${nationality}%,ethnicity_identity.ilike.%${nationality}%`);
-  }
-
-  if (birthFrom !== null) request = request.gte("birth_year", birthFrom);
-  if (birthTo !== null) request = request.lte("birth_year", birthTo);
-  if (deathFrom !== null) request = request.gte("death_year", deathFrom);
-  if (deathTo !== null) request = request.lte("death_year", deathTo);
-  if (gender) request = request.ilike("gender", `%${gender}%`);
-
-  const { data, error } = await request;
-  if (error) throw error;
-
-  return ((data ?? []) as ComposerFilterRow[]).map((composer) => composer.id);
+  return Object.entries(params).filter(([key]) => key !== "pagina").some(([, value]) => cleanText(value).length > 0 || isChecked(value));
 }
 
 async function runAdvancedSearch(params: Record<string, string | undefined>) {
@@ -103,21 +50,16 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
   }
 
   try {
-    const composerIds = await findComposerIds(params);
-
-    if (composerIds && composerIds.length === 0) {
-      return { works: [] as WorkResult[], error: null };
-    }
-
+    validateSearchRanges(params);
     const supabase = await createClient();
     let request = supabase
       .from("works")
       .select(
-        "id,display_title,slug,composition_year_start,duration_minutes,formation_type,instrumentation_text,public_summary,composers(display_name)",
+        "id,display_title,slug,composition_year_start,duration_minutes,formation_type,public_summary,composers!inner(display_name)",
       )
       .eq("publication_status", "published")
       .order("display_title", { ascending: true })
-      .limit(RESULT_LIMIT);
+      .range((pageNumber(params.pagina) - 1) * RESULT_LIMIT, pageNumber(params.pagina) * RESULT_LIMIT);
 
     const title = cleanText(params.titulo);
     const compositionFrom = cleanNumber(params.composicao_de);
@@ -129,16 +71,37 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     const instrumentalSolo = cleanText(params.solista_instrumental);
     const vocalSolo = cleanText(params.solista_vocal);
 
-    if (composerIds) request = request.in("composer_id", composerIds);
-    if (title) request = request.or(`canonical_title.ilike.%${title}%,display_title.ilike.%${title}%`);
+    const composer = cleanText(params.compositor);
+    const nationality = cleanText(params.nacionalidade);
+    const gender = cleanText(params.genero);
+    if (composer) request = request.ilike("composers.search_document", searchPattern(composer));
+    if (nationality) request = request.or(`nationality.ilike.%${nationality}%,ethnicity_identity.ilike.%${nationality}%`, { referencedTable: "composers" });
+    if (gender) request = request.ilike("composers.gender", `%${gender}%`);
+    const birthFrom = cleanNumber(params.nascimento_de);
+    const birthTo = cleanNumber(params.nascimento_ate);
+    const deathFrom = cleanNumber(params.falecimento_de);
+    const deathTo = cleanNumber(params.falecimento_ate);
+    if (birthFrom !== null) request = request.gte("composers.birth_year", birthFrom);
+    if (birthTo !== null) request = request.lte("composers.birth_year", birthTo);
+    if (deathFrom !== null) request = request.gte("composers.death_year", deathFrom);
+    if (deathTo !== null) request = request.lte("composers.death_year", deathTo);
+    if (title) request = request.ilike("search_document", searchPattern(title));
     if (compositionFrom !== null) request = request.gte("composition_year_start", compositionFrom);
     if (compositionTo !== null) request = request.lte("composition_year_start", compositionTo);
     if (durationFrom !== null) request = request.gte("duration_minutes", durationFrom);
     if (durationTo !== null) request = request.lte("duration_minutes", durationTo);
     if (formation) request = request.ilike("formation_type", `%${formation}%`);
-    if (instrumentation) request = request.ilike("instrumentation_text", `%${instrumentation}%`);
-    if (instrumentalSolo) request = request.ilike("instrumentation_text", `%${instrumentalSolo}%`);
-    if (vocalSolo) request = request.ilike("instrumentation_text", `%${vocalSolo}%`);
+    if (instrumentation || instrumentalSolo || vocalSolo) {
+      const { data, error } = await supabase.rpc("find_catalog_work_ids", {
+        instrument_query: instrumentation, solo_query: instrumentalSolo, voice_query: vocalSolo,
+      });
+      if (error) throw new Error(error.code === "42501"
+        ? "Entre com uma conta com acesso ao catálogo para pesquisar instrumentação detalhada."
+        : "Não foi possível consultar a instrumentação. Tente novamente.");
+      const ids = (data ?? []) as string[];
+      if (ids.length === 0) return { works: [] as WorkResult[], error: null };
+      request = request.in("id", ids);
+    }
     if (isChecked(params.coro)) request = request.eq("has_choir", true);
     if (isChecked(params.sem_coro)) request = request.eq("has_choir", false);
     if (isChecked(params.solista)) request = request.eq("has_soloist", true);
@@ -340,9 +303,7 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
                 <RotateCcw size={18} aria-hidden="true" />
               </Link>
             </Button>
-            <Button aria-label="Imprimir" size="sm" type="button" variant="secondary">
-              <Printer size={18} aria-hidden="true" />
-            </Button>
+            <PrintButton />
           </div>
         </div>
 
@@ -360,14 +321,14 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
           </div>
 
           {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
-          {!searched ? (
+          {error ? null : !searched ? (
             <EmptyState title="Escolha um ou mais critérios" />
           ) : works.length === 0 ? (
             <EmptyState title="Nenhuma obra encontrada" />
           ) : (
             <section className="grid gap-3">
               <h2 className="text-2xl font-normal">Resultados</h2>
-              {works.map((work) => (
+              {works.slice(0, RESULT_LIMIT).map((work) => (
                 <Link href={`/obras/${work.slug}`} key={work.id}>
                   <Card className="transition-colors hover:border-[var(--border-strong)]">
                     <h3 className="text-xl font-normal">{work.display_title}</h3>
@@ -377,7 +338,6 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
                     </p>
                     <p className="mt-2 text-sm text-[var(--muted-foreground)]">
                       {work.formation_type ?? "formação não informada"}
-                      {work.instrumentation_text ? ` · ${work.instrumentation_text}` : ""}
                     </p>
                   </Card>
                 </Link>
@@ -386,6 +346,8 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
           )}
         </div>
       </form>
+      {searched && !error && <SaveSearch path="/busca-avancada" params={params} />}
+      {searched && !error && <SearchPagination path="/busca-avancada" params={params} page={pageNumber(params.pagina)} hasNext={works.length > RESULT_LIMIT} />}
     </div>
   );
 }

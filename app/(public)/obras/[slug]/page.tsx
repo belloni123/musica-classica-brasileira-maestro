@@ -1,3 +1,7 @@
+import Link from "next/link";
+import { getCurrentProfile, hasCompleteCatalogAccess } from "@/lib/auth/session";
+import { CatalogWorkDetails } from "@/components/catalog/work-details";
+import { WorkCollectionControls } from "@/components/catalog/work-collection-controls";
 import { notFound } from "next/navigation";
 import { ContentLock } from "@/components/ui/content-lock";
 import { Card } from "@/components/ui/card";
@@ -17,18 +21,19 @@ function composerName(value: { display_name: string } | Array<{ display_name: st
 export default async function PublicWorkPage({ params }: PageProps) {
   const { slug } = await params;
 
-  try {
+  const profile = await getCurrentProfile();
     const supabase = await createClient();
     const { data: work, error } = await supabase
       .from("works")
       .select(
-        "display_title,composition_year_start,public_summary,formation_type,duration_minutes,has_choir,has_soloist,composers(display_name)",
+        "id,display_title,composition_year_start,public_summary,formation_type,duration_minutes,has_choir,has_soloist,composers(display_name)",
       )
       .eq("slug", slug)
       .eq("publication_status", "published")
-      .single();
+      .maybeSingle();
 
-    if (error || !work) notFound();
+    if (error) throw new Error("Não foi possível consultar a obra.");
+    if (!work) notFound();
 
     return (
       <div className="grid gap-8">
@@ -68,10 +73,9 @@ export default async function PublicWorkPage({ params }: PageProps) {
             </div>
           </dl>
         </Card>
-        <ContentLock />
+        {profile && <WorkCollectionControls workId={work.id} />}
+        {hasCompleteCatalogAccess(profile) ? <CatalogWorkDetails workId={work.id} /> : <ContentLock />}
+        <Link className="underline" href="/buscar">Voltar à pesquisa</Link>
       </div>
     );
-  } catch {
-    notFound();
-  }
 }

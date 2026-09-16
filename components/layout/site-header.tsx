@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth/session";
 import { ChevronDown, LibraryBig, LogIn, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,7 +17,8 @@ const resourceLinks = [
   { href: "/recursos/abreviaturas", label: "Abreviaturas" },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await getCurrentUser();
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface-strong)]">
       <div className="mx-auto flex min-h-[72px] w-full max-w-7xl items-center justify-between gap-6 px-5 md:px-8">
@@ -52,7 +54,7 @@ export function SiteHeader() {
               Recursos
               <ChevronDown size={14} aria-hidden="true" />
             </Link>
-            <div className="invisible absolute right-0 top-full min-w-56 bg-[var(--nav-active)] py-2 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100">
+            <div className="invisible absolute right-0 top-full min-w-56 bg-[var(--nav-active)] py-2 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               {resourceLinks.map((link) => (
                 <Link
                   className="block px-4 py-3 text-xs font-semibold hover:bg-[var(--surface-strong)]"
@@ -73,9 +75,9 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="ghost">
-            <Link aria-label="Entrar" href="/entrar">
+            <Link aria-label={user ? "Minha conta" : "Entrar"} href={user ? "/minha-conta" : "/entrar"}>
               <LogIn size={16} aria-hidden="true" />
-              <span className="hidden sm:inline">Entrar</span>
+              <span className="hidden sm:inline">{user ? "Minha conta" : "Entrar"}</span>
             </Link>
           </Button>
           <details className="relative md:hidden">

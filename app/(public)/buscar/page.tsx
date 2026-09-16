@@ -1,16 +1,22 @@
 import Link from "next/link";
-import { Printer, RotateCcw, Search } from "lucide-react";
+import { SaveSearch } from "@/components/catalog/save-search";
+import { RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
 
+import { PrintButton } from "@/components/ui/print-button";
+import { SearchPagination } from "@/components/ui/search-pagination";
+import { cleanText as sanitizeSearchQuery, searchPattern, pageNumber } from "@/lib/search/input";
+
 type SearchPageProps = {
   searchParams: Promise<{
     compositor?: string;
     titulo?: string;
     q?: string;
+    pagina?: string;
   }>;
 };
 
@@ -35,21 +41,12 @@ type WorkResult = {
   composers: { display_name: string } | Array<{ display_name: string }> | null;
 };
 
-function sanitizeSearchQuery(query: string) {
-  return query
-    .normalize("NFKC")
-    .replace(/[^\p{L}\p{N}\s'".-]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 80);
-}
-
 function composerName(value: WorkResult["composers"]) {
   if (Array.isArray(value)) return value[0]?.display_name ?? "-";
   return value?.display_name ?? "-";
 }
 
-async function runSearch(composerQuery: string, titleQuery: string) {
+async function runSearch(composerQuery: string, titleQuery: string, page: number) {
   const composer = sanitizeSearchQuery(composerQuery);
   const title = sanitizeSearchQuery(titleQuery);
 
@@ -63,29 +60,24 @@ async function runSearch(composerQuery: string, titleQuery: string) {
       .from("composers")
       .select("id,display_name,slug,short_biography")
       .eq("publication_status", "published")
-      .limit(SEARCH_RESULT_LIMIT);
+      .order("display_name").range((page - 1) * SEARCH_RESULT_LIMIT, page * SEARCH_RESULT_LIMIT);
 
-    const workRequest = supabase
+    let workRequest = supabase
       .from("works")
       .select(
-        "id,display_title,slug,public_summary,composition_year_start,formation_type,composers(display_name)",
+        "id,display_title,slug,public_summary,composition_year_start,formation_type,composers!inner(display_name,search_document)",
       )
       .eq("publication_status", "published")
       .limit(SEARCH_RESULT_LIMIT);
 
     if (composer) {
-      composerRequest.or(
-        `canonical_name.ilike.%${composer}%,display_name.ilike.%${composer}%,slug.ilike.%${composer}%`,
-      );
+      composerRequest.ilike("search_document", searchPattern(composer));
+      workRequest = workRequest.ilike("composers.search_document", searchPattern(composer));
     }
-
-    if (title) {
-      workRequest.or(`canonical_title.ilike.%${title}%,display_title.ilike.%${title}%,slug.ilike.%${title}%`);
-    } else if (composer) {
-      workRequest.or(`canonical_title.ilike.%${composer}%,display_title.ilike.%${composer}%,slug.ilike.%${composer}%`);
-    }
-
-    const [composerResult, workResult] = await Promise.all([composerRequest, workRequest]);
+    if (title) workRequest = workRequest.ilike("search_document", searchPattern(title));
+    const [composerResult, workResult] = await Promise.all([
+      composer ? composerRequest : Promise.resolve({ data: [], error: null }), workRequest,
+    ]);
 
     if (composerResult.error) throw composerResult.error;
     if (workResult.error) throw workResult.error;
@@ -108,7 +100,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const composerQuery = params.compositor ?? params.q ?? "";
   const titleQuery = params.titulo ?? "";
-  const { composers, works, error } = await runSearch(composerQuery, titleQuery);
+  const page = pageNumber(params.pagina);
+  const { composers, works, error } = await runSearch(composerQuery, titleQuery, page);
   const hasQuery = Boolean(sanitizeSearchQuery(composerQuery) || sanitizeSearchQuery(titleQuery));
   const hasResults = composers.length > 0 || works.length > 0;
 
@@ -159,9 +152,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     <RotateCcw size={18} aria-hidden="true" />
                   </Link>
                 </Button>
-                <Button aria-label="Imprimir" size="sm" type="button" variant="secondary">
-                  <Printer size={18} aria-hidden="true" />
-                </Button>
+                <PrintButton />
               </div>
             </form>
           </Card>
@@ -182,7 +173,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
 
       {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
-      {!hasQuery ? (
+      {error ? null : !hasQuery ? (
         <EmptyState title="Digite um termo para buscar" />
       ) : !hasResults ? (
         <EmptyState title="Nenhum resultado encontrado" />
@@ -193,7 +184,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {composers.length === 0 ? (
               <p className="text-sm text-[var(--muted-foreground)]">Nenhum compositor encontrado.</p>
             ) : (
-              composers.map((composer) => (
+              composers.slice(0, SEARCH_RESULT_LIMIT).map((composer) => (
                 <Link href={`/compositores/${composer.slug}`} key={composer.id}>
                   <Card className="transition-colors hover:border-[var(--border-strong)]">
                     <h3 className="text-xl font-normal">{composer.display_name}</h3>
@@ -210,7 +201,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {works.length === 0 ? (
               <p className="text-sm text-[var(--muted-foreground)]">Nenhuma obra encontrada.</p>
             ) : (
-              works.map((work) => (
+              works.slice(0, SEARCH_RESULT_LIMIT).map((work) => (
                 <Link href={`/obras/${work.slug}`} key={work.id}>
                   <Card className="transition-colors hover:border-[var(--border-strong)]">
                     <h3 className="text-xl font-normal">{work.display_title}</h3>
@@ -228,6 +219,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </section>
         </div>
       )}
+      {hasQuery && !error && <SaveSearch path="/buscar" params={params} />}
+      {hasQuery && !error && <SearchPagination path="/buscar" params={params} page={page} hasNext={works.length > SEARCH_RESULT_LIMIT || composers.length > SEARCH_RESULT_LIMIT} />}
     </div>
   );
 }

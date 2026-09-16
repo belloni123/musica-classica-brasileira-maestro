@@ -1,4 +1,8 @@
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { deleteSearch } from "@/app/(account)/actions";
+import { savedSearchUrl } from "@/lib/search/saved";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireAuthenticatedUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -41,7 +45,7 @@ export default async function SavedSearchesPage() {
     <div className="grid gap-6">
       <h1 className="text-3xl font-semibold">Buscas salvas</h1>
       {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
-      {searches.length === 0 ? (
+      {error ? null : searches.length === 0 ? (
         <EmptyState title="Nenhuma busca salva" description="Buscas salvas aparecem aqui para consulta posterior." />
       ) : (
         <div className="grid gap-3">
@@ -49,8 +53,9 @@ export default async function SavedSearchesPage() {
             <Card key={search.id}>
               <h2 className="font-semibold">{search.name}</h2>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {JSON.stringify(search.parameters_json)}
+                <Link className="underline" href={savedSearchUrl(search.parameters_json)}>Executar pesquisa</Link>
               </p>
+              <form action={deleteSearch.bind(null, search.id)} className="mt-3"><Button type="submit" variant="secondary">Excluir pesquisa</Button></form>
             </Card>
           ))}
         </div>

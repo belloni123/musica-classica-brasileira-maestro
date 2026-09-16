@@ -19,13 +19,10 @@ export default async function EditComposerPage({ params }: EditComposerPageProps
   await requireEditorialWriteAccess();
   const { id } = await params;
   const supabase = await createClient();
-  const { data: composer, error } = await supabase
-    .from("composers")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data: composer, error } = await supabase.rpc("get_editorial_record", { entity: "composer", record_id: id });
 
-  if (error || !composer) {
+  if (error) throw new Error("Não foi possível carregar o registro editorial.");
+  if (!composer) {
     notFound();
   }
 
