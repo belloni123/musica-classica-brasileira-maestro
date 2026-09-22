@@ -12,11 +12,11 @@ export async function middleware(request: NextRequest) {
   ) {
     if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/index.html") {
       const url = request.nextUrl.clone();
-      url.pathname = "/aurora/index.html";
+      url.pathname = "/media.html";
       return NextResponse.rewrite(url);
     }
 
-    if (request.nextUrl.pathname.startsWith("/aurora/")) {
+    if (request.nextUrl.pathname === "/media.html") {
       return NextResponse.next();
     }
   }
