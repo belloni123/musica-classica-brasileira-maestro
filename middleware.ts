@@ -1,7 +1,26 @@
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  const hostname = (request.headers.get("host") ?? "").split(":")[0];
+
+  // Dedicated media kit for Vinícola Aurora.
+  // This preserves the existing application on every other hostname.
+  if (
+    hostname === "maestro-aurora.vercel.app" ||
+    hostname.startsWith("maestro-aurora-")
+  ) {
+    if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/index.html") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/aurora/index.html";
+      return NextResponse.rewrite(url);
+    }
+
+    if (request.nextUrl.pathname.startsWith("/aurora/")) {
+      return NextResponse.next();
+    }
+  }
+
   return updateSession(request);
 }
 
