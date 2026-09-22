@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { firstRelated, safeExternalUrl, type WorkDetails } from "@/lib/catalog/types";
+import { instrumentationCode } from "@/lib/catalog/instrumentation";
 
 export async function CatalogWorkDetails({ workId }: { workId: string }) {
   const supabase = await createClient();
@@ -12,14 +13,22 @@ export async function CatalogWorkDetails({ workId }: { workId: string }) {
   ]);
   if ([details, instrumentation, sources, references].some((result) => result.error)) throw new Error("Não foi possível carregar os detalhes autorizados.");
   const data = details.data as WorkDetails | null;
+  const code = instrumentationCode(instrumentation.data ?? []);
   return <>
     <Card><h2 className="text-2xl">Instrumentação</h2>
-      <p className="mt-3 whitespace-pre-wrap">{data?.instrumentation_text || "Resumo de instrumentação não informado."}</p>
-      <ul className="mt-4 grid gap-2">{instrumentation.data?.map(row => <li key={row.id}>
+      {code ? <>
+        <p className="mt-3 font-mono text-xl leading-relaxed" aria-label={`Instrumentação: ${code}`}>{code}</p>
+        <p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">Flautas, oboés, clarinetes, fagotes — trompas, trompetes, trombones, tubas — Tmp: tímpanos — Str: cordas cadastradas.</p>
+        <p className="mt-1 text-xs text-[var(--muted-foreground)]">0: nenhum instrumento cadastrado nessa posição; ?: quantidade não informada; +: mínimo; *: consultar função, opcional ou dobramento nos detalhes.</p>
+      </> : <p className="mt-3 whitespace-pre-wrap">{data?.instrumentation_text || "Instrumentação não informada."}</p>}
+      {!!instrumentation.data?.length && <details className="mt-4"><summary className="cursor-pointer text-sm font-medium">Ver instrumentos e observações</summary>
+      {data?.instrumentation_text && <p className="mt-3 whitespace-pre-wrap">{data.instrumentation_text}</p>}
+      <ul className="mt-3 grid gap-2">{instrumentation.data?.map(row => <li key={row.id}>
         {firstRelated(row.instruments)?.name ?? "Instrumento"}: {row.quantity_text || (row.minimum_quantity === null ? "quantidade não informada" : `${row.minimum_quantity}${row.maximum_quantity !== null && row.maximum_quantity !== row.minimum_quantity ? `–${row.maximum_quantity}` : ""}`)}
         {row.optional ? " · opcional" : ""}{row.doubling ? " · dobramento" : ""}{row.role ? ` · ${row.role}` : ""}
         {row.notes && <p className="text-sm text-[var(--muted-foreground)]">{row.notes}</p>}
       </li>)}</ul>
+      </details>}
     </Card>
     <Card><h2 className="text-2xl">Notas para pesquisa e performance</h2>
       <p className="mt-3 whitespace-pre-wrap">{data?.subscriber_notes || "Notas de pesquisa não informadas."}</p>

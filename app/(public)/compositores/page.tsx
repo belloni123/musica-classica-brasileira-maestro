@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/server";
+import { composerBirthplace, composerIndexLetter, sortComposers } from "@/lib/catalog/composers";
 
 type ComposersPageProps = {
   searchParams: Promise<{ letra?: string }>;
@@ -14,7 +15,9 @@ type ComposerRow = {
   slug: string;
   birth_year: number | null;
   death_year: number | null;
-  nationality: string | null;
+  surname: string | null;
+  birth_city: string | null;
+  birth_state: string | null;
   short_biography: string | null;
 };
 
@@ -27,29 +30,20 @@ function normalizeLetter(value?: string) {
   return alphabet.includes(letter) ? letter : "";
 }
 
-function firstIndexLetter(composer: ComposerRow) {
-  const source = composer.canonical_name || composer.display_name;
-  return source.normalize("NFD").replace(/\p{Diacritic}/gu, "").trim().charAt(0).toUpperCase();
-}
-
 async function fetchPublishedComposers(letter: string) {
   try {
     const supabase = await createClient();
-    let request = supabase
-      .from("composers")
-      .select("id,display_name,canonical_name,slug,birth_year,death_year,nationality,short_biography")
-      .eq("publication_status", "published")
-      .order("canonical_name", { ascending: true })
-      .limit(500);
-
-    if (letter) {
-      request = request.ilike("canonical_name", `${letter}%`);
+    const composers: ComposerRow[] = [];
+    // Page before locale-aware sorting, so neither the 500-row cap nor accents lose entries.
+    for (let offset = 0; ; offset += 500) {
+      const { data, error } = await supabase.from("composers")
+        .select("id,display_name,canonical_name,surname,slug,birth_year,death_year,birth_city,birth_state,short_biography")
+        .eq("publication_status", "published").order("id").range(offset, offset + 499);
+      if (error) throw error;
+      composers.push(...(data ?? []) as ComposerRow[]);
+      if (!data || data.length < 500) break;
     }
-
-    const { data, error } = await request;
-
-    if (error) throw error;
-    return { composers: (data ?? []) as ComposerRow[], error: null };
+    return { composers: sortComposers(composers, letter), error: null };
   } catch (error) {
     return {
       composers: [] as ComposerRow[],
@@ -71,7 +65,7 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
             Visão geral de compositores
           </h1>
           <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-            Compositores e obras da base publicados em ordem alfabética.
+            Compositores publicados em ordem alfabética de sobrenome.
           </p>
         </div>
         <Link className="text-sm font-semibold text-[var(--catalog-blue)]" href="/entrar">
@@ -113,7 +107,7 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
           {alphabet
             .filter((letter) => !selectedLetter || letter === selectedLetter)
             .map((letter) => {
-              const letterComposers = composers.filter((composer) => firstIndexLetter(composer) === letter);
+              const letterComposers = composers.filter((composer) => composerIndexLetter(composer) === letter);
 
               if (letterComposers.length === 0) return null;
 
@@ -127,7 +121,7 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
                           <h3 className="text-xl font-normal">{composer.display_name}</h3>
                           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                             {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
-                            {composer.nationality ?? "nacionalidade não informada"}
+                            {composerBirthplace(composer.birth_city, composer.birth_state)}
                           </p>
                           {composer.short_biography ? (
                             <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--muted-foreground)]">

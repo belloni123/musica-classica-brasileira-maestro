@@ -60,7 +60,7 @@ export function WorkInstrumentationSection({
       <div>
         <h2 className="text-lg font-semibold">Instrumentação estruturada</h2>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-          Registre instrumentos, quantidades, dobramentos e observações de execução.
+          Registre instrumentos, quantidades, dobramentos e observações de execução. O código numérico da ficha e a pesquisa por quantidades são gerados a partir destes dados, não do texto livre. Para uma quantidade exata, preencha mínimo e máximo com o mesmo número.
         </p>
       </div>
 

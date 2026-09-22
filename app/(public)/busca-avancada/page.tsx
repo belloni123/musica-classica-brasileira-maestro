@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
+import { hasInstrumentationCriteria, instrumentationCriteria, orchestralInstruments } from "@/lib/catalog/instrumentation";
+import { findInstrumentationMatches } from "@/lib/search/instrumentation";
 
 import { PrintButton } from "@/components/ui/print-button";
 import { SearchPagination } from "@/components/ui/search-pagination";
@@ -51,6 +53,7 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
 
   try {
     validateSearchRanges(params);
+    const quantities = instrumentationCriteria(params);
     const supabase = await createClient();
     let request = supabase
       .from("works")
@@ -100,6 +103,11 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
         : "Não foi possível consultar a instrumentação. Tente novamente.");
       const ids = (data ?? []) as string[];
       if (ids.length === 0) return { works: [] as WorkResult[], error: null };
+      request = request.in("id", ids);
+    }
+    if (hasInstrumentationCriteria(quantities)) {
+      const ids = await findInstrumentationMatches(quantities);
+      if (!ids.length) return { works: [] as WorkResult[], error: null };
       request = request.in("id", ids);
     }
     if (isChecked(params.coro)) request = request.eq("has_choir", true);
@@ -235,6 +243,18 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
 
           <details className="bg-[var(--panel-blue)] p-3">
             <summary className="cursor-pointer text-sm font-semibold">Instrumentação</summary>
+            <p className="mt-3 text-xs leading-5">Combine quantidades por instrumento. Campos vazios não filtram; intervalos cadastrados aceitam quantidades entre o mínimo e o máximo. Dados ausentes não contam como zero.</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              {orchestralInstruments.map(instrument => <label className="grid gap-1" key={instrument.key}>
+                {instrument.label}
+                <Input className="rounded-sm bg-white" type="number" min={0} max={1000} step={1}
+                  placeholder="Qualquer" name={`qtd_${instrument.key}`} defaultValue={value(params, `qtd_${instrument.key}`)} />
+              </label>)}
+            </div>
+            <div className="mt-3 grid gap-2 text-sm">
+              <label className="flex items-center gap-2"><input name="timpanos" type="checkbox" defaultChecked={params.timpanos === "on"} />Com tímpanos (Tmp)</label>
+              <label className="flex items-center gap-2"><input name="cordas" type="checkbox" defaultChecked={params.cordas === "on"} />Com cordas (Str)</label>
+            </div>
             <label className="mt-4 grid gap-1 text-sm">
               Instrumento ou família
               <Input

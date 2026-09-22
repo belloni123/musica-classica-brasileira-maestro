@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { composerBirthplace } from "@/lib/catalog/composers";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -16,7 +17,7 @@ export default async function PublicComposerPage({ params }: PageProps) {
     const supabase = await createClient();
     const { data: composer, error } = await supabase
       .from("composers")
-      .select("id,display_name,birth_year,death_year,nationality,short_biography,long_biography")
+      .select("id,display_name,birth_year,death_year,birth_city,birth_state,short_biography,long_biography")
       .eq("slug", slug)
       .eq("publication_status", "published")
       .maybeSingle();
@@ -37,7 +38,7 @@ export default async function PublicComposerPage({ params }: PageProps) {
           </h1>
           <p className="mt-4 text-lg text-[var(--muted-foreground)]">
             {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
-            {composer.nationality ?? "nacionalidade não informada"}
+            {composerBirthplace(composer.birth_city, composer.birth_state)}
           </p>
         </div>
         <Card className="max-w-4xl">
