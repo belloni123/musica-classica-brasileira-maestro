@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { getCurrentProfile, hasCompleteCatalogAccess } from "@/lib/auth/session";
 import { CatalogWorkDetails } from "@/components/catalog/work-details";
-import { WorkCollectionControls } from "@/components/catalog/work-collection-controls";
 import { notFound } from "next/navigation";
 import { ContentLock } from "@/components/ui/content-lock";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { compositionYearLabel } from "@/lib/catalog/options";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -26,7 +26,7 @@ export default async function PublicWorkPage({ params }: PageProps) {
     const { data: work, error } = await supabase
       .from("works")
       .select(
-        "id,display_title,composition_year_start,public_summary,formation_type,duration_minutes,has_choir,has_soloist,composers(display_name)",
+        "id,display_title,composition_year_start,composition_year_end,composition_date_text,formation_type,duration_minutes,composers(display_name)",
       )
       .eq("slug", slug)
       .eq("publication_status", "published")
@@ -43,38 +43,12 @@ export default async function PublicWorkPage({ params }: PageProps) {
             {work.display_title}
           </h1>
           <p className="mt-4 text-lg text-[var(--muted-foreground)]">
-            {composerName(work.composers)} · {work.composition_year_start ?? "s/d"}
+            {composerName(work.composers)} · {compositionYearLabel(work.composition_year_start, work.composition_year_end, work.composition_date_text)}
           </p>
         </div>
-        <Card>
-          <h2 className="text-2xl font-normal">Resumo público</h2>
-          <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--muted-foreground)]">
-            {work.public_summary ?? "Resumo público não informado."}
-          </p>
-        </Card>
-        <Card>
-          <h2 className="text-2xl font-normal">Dados básicos</h2>
-          <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
-            <div>
-              <dt className="text-[var(--muted-foreground)]">Formação</dt>
-              <dd>{work.formation_type ?? "-"}</dd>
-            </div>
-            <div>
-              <dt className="text-[var(--muted-foreground)]">Duração</dt>
-              <dd>{work.duration_minutes ? `${work.duration_minutes} min` : "-"}</dd>
-            </div>
-            <div>
-              <dt className="text-[var(--muted-foreground)]">Coro</dt>
-              <dd>{work.has_choir ? "Sim" : "Não"}</dd>
-            </div>
-            <div>
-              <dt className="text-[var(--muted-foreground)]">Solista</dt>
-              <dd>{work.has_soloist ? "Sim" : "Não"}</dd>
-            </div>
-          </dl>
-        </Card>
-        {profile && <WorkCollectionControls workId={work.id} />}
-        {hasCompleteCatalogAccess(profile) ? <CatalogWorkDetails workId={work.id} /> : <ContentLock />}
+        {hasCompleteCatalogAccess(profile)
+          ? <CatalogWorkDetails workId={work.id} durationMinutes={work.duration_minutes} formationType={work.formation_type} />
+          : <><Card><h2 className="text-2xl">Informações para performance</h2><dl className="mt-4 grid gap-3 text-sm"><div><dt>Duração</dt><dd>{work.duration_minutes != null ? `${work.duration_minutes} min` : "Não informada"}</dd></div><div><dt>Meio de execução</dt><dd>{work.formation_type ?? "Não informado"}</dd></div></dl></Card><ContentLock /></>}
         <Link className="underline" href="/buscar">Voltar à pesquisa</Link>
       </div>
     );

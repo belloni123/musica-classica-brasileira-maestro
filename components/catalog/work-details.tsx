@@ -3,7 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { firstRelated, safeExternalUrl, type WorkDetails } from "@/lib/catalog/types";
 import { instrumentationCode } from "@/lib/catalog/instrumentation";
 
-export async function CatalogWorkDetails({ workId }: { workId: string }) {
+export async function CatalogWorkDetails({ workId, durationMinutes, formationType }: {
+  workId: string; durationMinutes: number | null; formationType: string | null;
+}) {
   const supabase = await createClient();
   const [details, instrumentation, sources, references] = await Promise.all([
     supabase.rpc("get_work_details", { work_id: workId }),
@@ -11,29 +13,32 @@ export async function CatalogWorkDetails({ workId }: { workId: string }) {
     supabase.from("work_sources").select("id,material_type,score_available,parts_available,access_conditions,purchase_url,rental_url,perusal_score_url,source_holders(name,website)").eq("work_id", workId),
     supabase.from("work_references").select("id,bibliographic_references(title,author,year,url)").eq("work_id", workId),
   ]);
-  if ([details, instrumentation, sources, references].some((result) => result.error)) throw new Error("Não foi possível carregar os detalhes autorizados.");
+  if ([details, instrumentation, sources, references].some(result => result.error)) throw new Error("Não foi possível carregar os detalhes autorizados.");
   const data = details.data as WorkDetails | null;
   const code = instrumentationCode(instrumentation.data ?? []);
+  const mainSourceUrl = safeExternalUrl(data?.main_source);
   return <>
-    <Card><h2 className="text-2xl">Instrumentação</h2>
-      {code ? <>
-        <p className="mt-3 font-mono text-xl leading-relaxed" aria-label={`Instrumentação: ${code}`}>{code}</p>
-      </> : <p className="mt-3 whitespace-pre-wrap">{data?.instrumentation_text || "Instrumentação não informada."}</p>}
-      {!!instrumentation.data?.length && <details className="mt-4"><summary className="cursor-pointer text-sm font-medium">Ver instrumentos e observações</summary>
-      {data?.instrumentation_text && <p className="mt-3 whitespace-pre-wrap">{data.instrumentation_text}</p>}
-      <ul className="mt-3 grid gap-2">{instrumentation.data?.map(row => <li key={row.id}>
-        {firstRelated(row.instruments)?.name ?? "Instrumento"}: {row.quantity_text || (row.minimum_quantity === null ? "quantidade não informada" : `${row.minimum_quantity}${row.maximum_quantity !== null && row.maximum_quantity !== row.minimum_quantity ? `–${row.maximum_quantity}` : ""}`)}
-        {row.optional ? " · opcional" : ""}{row.doubling ? " · dobramento" : ""}{row.role ? ` · ${row.role}` : ""}
-        {row.notes && <p className="text-sm text-[var(--muted-foreground)]">{row.notes}</p>}
-      </li>)}</ul>
-      </details>}
+    <Card>
+      <h2 className="text-2xl">Informações para performance</h2>
+      <dl className="mt-4 grid gap-4">
+        <div><dt className="text-sm text-[var(--muted-foreground)]">Duração</dt><dd>{durationMinutes != null ? `${durationMinutes} min` : "Não informada"}</dd></div>
+        <div><dt className="text-sm text-[var(--muted-foreground)]">Meio de execução</dt><dd>{formationType ?? "Não informado"}</dd></div>
+        <div><dt className="text-sm text-[var(--muted-foreground)]">Instrumentação</dt>
+          <dd className="mt-1">{code ? <span className="font-mono text-lg" aria-label={`Instrumentação: ${code}`}>{code}</span> : data?.instrumentation_text || "Não informada"}</dd>
+          {!!instrumentation.data?.length && <details className="mt-3"><summary className="cursor-pointer text-sm font-medium">Ver instrumentos e observações</summary>
+            {data?.instrumentation_text && <p className="mt-3 whitespace-pre-wrap">{data.instrumentation_text}</p>}
+            <ul className="mt-3 grid gap-2">{instrumentation.data.map(row => <li key={row.id}>
+              {firstRelated(row.instruments)?.name ?? "Instrumento"}: {row.quantity_text || (row.minimum_quantity === null ? "quantidade não informada" : `${row.minimum_quantity}${row.maximum_quantity !== null && row.maximum_quantity !== row.minimum_quantity ? `–${row.maximum_quantity}` : ""}`)}
+              {row.optional ? " · opcional" : ""}{row.doubling ? " · dobramento" : ""}{row.role ? ` · ${row.role}` : ""}
+              {row.notes && <p className="text-sm text-[var(--muted-foreground)]">{row.notes}</p>}
+            </li>)}</ul>
+          </details>}
+        </div>
+      </dl>
     </Card>
-    <Card><h2 className="text-2xl">Notas para pesquisa e performance</h2>
-      <p className="mt-3 whitespace-pre-wrap">{data?.subscriber_notes || "Notas de pesquisa não informadas."}</p>
-      <p className="mt-3 whitespace-pre-wrap">{data?.performance_notes || "Notas de performance não informadas."}</p>
-    </Card>
-    <Card><h2 className="text-2xl">Fontes e materiais</h2>
-      <p className="mt-3 whitespace-pre-wrap">{data?.main_source || "Fonte principal não informada."}</p>
+    <Card>
+      <h2 className="text-2xl">Disponibilidade de material</h2>
+      {mainSourceUrl && <p className="mt-3"><a className="break-all underline" href={mainSourceUrl} target="_blank" rel="noopener noreferrer">{data?.main_source}</a></p>}
       {sources.data?.map(source => <div key={source.id} className="mt-4 border-t pt-3">
         <h3>{firstRelated(source.source_holders)?.name ?? "Acervo não informado"} · {source.material_type}</h3>
         <p className="text-sm">Partitura: {source.score_available ? "disponível" : "não confirmada"} · Partes: {source.parts_available ? "disponíveis" : "não confirmadas"}</p>
@@ -42,10 +47,11 @@ export async function CatalogWorkDetails({ workId }: { workId: string }) {
           const href = safeExternalUrl(url); return href ? <a key={label} className="underline" href={href} target="_blank" rel="noopener noreferrer">{label}</a> : null;
         })}</div>
       </div>)}
-      {!sources.data?.length && <p className="mt-3 text-sm">Nenhum material vinculado.</p>}
+      {!mainSourceUrl && !sources.data?.length && <p className="mt-3 text-sm">Nenhum material informado.</p>}
     </Card>
-    <Card><h2 className="text-2xl">Referências</h2>
-      {references.data?.map(row => { const reference=firstRelated(row.bibliographic_references); const href=safeExternalUrl(reference?.url); return <p className="mt-3" key={row.id}>{reference?.author} · {reference?.title} · {reference?.year ?? "s/d"} {href && <a href={href} className="underline" target="_blank" rel="noopener noreferrer">Consultar</a>}</p>; })}
+    <Card>
+      <h2 className="text-2xl">Referências bibliográficas</h2>
+      {references.data?.map(row => { const reference = firstRelated(row.bibliographic_references); const href = safeExternalUrl(reference?.url); return <p className="mt-3" key={row.id}>{reference?.author} · {reference?.title} · {reference?.year ?? "s/d"} {href && <a href={href} className="underline" target="_blank" rel="noopener noreferrer">Consultar</a>}</p>; })}
       {!references.data?.length && <p className="mt-3 text-sm">Nenhuma referência vinculada.</p>}
     </Card>
   </>;

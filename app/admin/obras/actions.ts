@@ -5,7 +5,24 @@ import { redirect } from "next/navigation";
 import { requireEditorialWriteAccess } from "@/lib/auth/session";
 import { slugify } from "@/lib/slug";
 import { createClient } from "@/lib/supabase/server";
-import { parseWorkFormData } from "@/lib/validators/work";
+import { parseChoirVoices, parseWorkFormData } from "@/lib/validators/work";
+
+async function syncChoirVoices(supabase: Awaited<ReturnType<typeof createClient>>, workId: string, voices: string[]) {
+  const { data: existing, error } = await supabase.from("voice_requirements")
+    .select("id,voice").eq("work_id", workId).eq("type", "choir");
+  if (error) throw new Error(`Erro ao consultar vozes do coro: ${error.message}`);
+  const toDelete = (existing ?? []).filter(row => !voices.includes(row.voice ?? "")).map(row => row.id);
+  if (toDelete.length) {
+    const { error: deleteError } = await supabase.from("voice_requirements").delete().in("id", toDelete);
+    if (deleteError) throw new Error(`Erro ao atualizar vozes do coro: ${deleteError.message}`);
+  }
+  const existingVoices = new Set((existing ?? []).map(row => row.voice));
+  const toInsert = voices.filter(voice => !existingVoices.has(voice)).map(voice => ({ work_id: workId, type: "choir", voice }));
+  if (toInsert.length) {
+    const { error: insertError } = await supabase.from("voice_requirements").insert(toInsert);
+    if (insertError) throw new Error(`Erro ao salvar vozes do coro: ${insertError.message}`);
+  }
+}
 
 async function buildUniqueWorkSlug(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -30,6 +47,7 @@ async function buildUniqueWorkSlug(
 export async function createWork(formData: FormData) {
   const { user } = await requireEditorialWriteAccess();
   const values = parseWorkFormData(formData);
+  const choirVoices = parseChoirVoices(formData);
   const supabase = await createClient();
   const slug = await buildUniqueWorkSlug(supabase, values.canonical_title);
   const payload = {
@@ -45,6 +63,8 @@ export async function createWork(formData: FormData) {
     throw new Error(`Erro ao criar obra: ${error?.message ?? "sem retorno"}`);
   }
 
+  await syncChoirVoices(supabase, data.id, choirVoices);
+
   revalidatePath("/admin/obras");
   redirect(`/admin/obras/${data.id}/editar`);
 }
@@ -52,6 +72,7 @@ export async function createWork(formData: FormData) {
 export async function updateWork(workId: string, formData: FormData) {
   const { user } = await requireEditorialWriteAccess();
   const values = parseWorkFormData(formData);
+  const choirVoices = parseChoirVoices(formData);
   const supabase = await createClient();
   const { data: previous, error: previousError } = await supabase.rpc("get_editorial_record", { entity: "work", record_id: workId });
 
@@ -60,12 +81,28 @@ export async function updateWork(workId: string, formData: FormData) {
   }
 
   const slug = await buildUniqueWorkSlug(supabase, values.canonical_title, workId);
-  const payload = { ...values, slug, updated_by: user.id };
+  const payload = {
+    composer_id: values.composer_id,
+    canonical_title: values.canonical_title,
+    display_title: values.display_title,
+    composition_year_start: values.composition_year_start,
+    composition_year_end: null,
+    duration_minutes: values.duration_minutes,
+    formation_type: values.formation_type ?? previous.formation_type ?? null,
+    soloist_type: values.soloist_type,
+    has_soloist: values.has_soloist,
+    has_choir: values.has_choir,
+    main_source: values.main_source,
+    slug,
+    updated_by: user.id,
+  };
   const { error } = await supabase.from("works").update(payload).eq("id", workId);
 
   if (error) {
     throw new Error(`Erro ao atualizar obra: ${error.message}`);
   }
+
+  await syncChoirVoices(supabase, workId, choirVoices);
 
   revalidatePath("/admin/obras");
   revalidatePath(`/admin/obras/${workId}/editar`);

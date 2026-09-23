@@ -67,14 +67,16 @@ export default async function EditWorkPage({ params }: PageProps) {
   await requireEditorialWriteAccess();
   const { id } = await params;
   const supabase = await createClient();
-  const [{ data: work, error }, composers, instruments, instrumentationRows] = await Promise.all([
+  const [{ data: work, error }, composers, instruments, instrumentationRows, choirRequirements] = await Promise.all([
     supabase.rpc("get_editorial_record", { entity: "work", record_id: id }),
     fetchComposers(),
     fetchInstruments(),
     fetchInstrumentationRows(id),
+    supabase.from("voice_requirements").select("voice").eq("work_id", id).eq("type", "choir"),
   ]);
 
   if (error) throw new Error("Não foi possível carregar o registro editorial.");
+  if (choirRequirements.error) throw new Error("Não foi possível carregar as vozes do coro.");
   if (!work) {
     notFound();
   }
@@ -112,6 +114,7 @@ export default async function EditWorkPage({ params }: PageProps) {
           composers={composers}
           submitLabel="Salvar alterações"
           work={work}
+          choirVoices={(choirRequirements.data ?? []).map(row => row.voice).filter((voice): voice is string => Boolean(voice))}
         />
         <WorkInstrumentationSection
           instruments={instruments}

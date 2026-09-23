@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { composerReliabilityLevels } from "@/lib/validators/composer";
+import { choirVoices, orchestraTypes } from "@/lib/catalog/options";
 
 const optionalText = z
   .string()
@@ -51,7 +52,8 @@ export const workFormSchema = z.object({
   duration_minutes: optionalDecimal,
   duration_minimum: optionalInteger,
   duration_maximum: optionalInteger,
-  formation_type: optionalText,
+  formation_type: z.union([z.enum(orchestraTypes), z.literal("")]).transform(value => value || null),
+  soloist_type: z.enum(["none", "vocal", "instrumental"]),
   difficulty_level: optionalText,
   has_choir: z.boolean(),
   has_soloist: z.boolean(),
@@ -97,8 +99,9 @@ export function parseWorkFormData(formData: FormData) {
     duration_maximum: formData.get("duration_maximum") ?? "",
     formation_type: formData.get("formation_type") ?? "",
     difficulty_level: formData.get("difficulty_level") ?? "",
-    has_choir: checkbox(formData, "has_choir"),
-    has_soloist: checkbox(formData, "has_soloist"),
+    has_choir: formData.get("has_choir") === "yes",
+    soloist_type: formData.get("soloist_type") ?? "",
+    has_soloist: formData.get("soloist_type") === "vocal" || formData.get("soloist_type") === "instrumental",
     has_electronics: checkbox(formData, "has_electronics"),
     has_brazilian_instruments: checkbox(formData, "has_brazilian_instruments"),
     educational_work: checkbox(formData, "educational_work"),
@@ -114,4 +117,9 @@ export function parseWorkFormData(formData: FormData) {
     instrumentation_text: formData.get("instrumentation_text") ?? "",
     reliability_level: formData.get("reliability_level") ?? "pending",
   });
+}
+
+export function parseChoirVoices(formData: FormData) {
+  if (formData.get("has_choir") !== "yes") return [];
+  return [...new Set(formData.getAll("choir_voice"))].map(value => z.enum(choirVoices).parse(value));
 }

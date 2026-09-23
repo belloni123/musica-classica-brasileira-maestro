@@ -7,6 +7,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
 import { hasInstrumentationCriteria, instrumentationCriteria, orchestralInstruments } from "@/lib/catalog/instrumentation";
+import { brazilianStates } from "@/lib/catalog/composers";
+import { brazilianRegions, orchestraTypes, compositionYearLabel } from "@/lib/catalog/options";
 import { findInstrumentationMatches } from "@/lib/search/instrumentation";
 
 import { PrintButton } from "@/components/ui/print-button";
@@ -22,6 +24,7 @@ type WorkResult = {
   display_title: string;
   slug: string;
   composition_year_start: number | null;
+  composition_year_end: number | null;
   duration_minutes: number | null;
   formation_type: string | null;
   instrumentation_text: string | null;
@@ -58,7 +61,7 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     let request = supabase
       .from("works")
       .select(
-        "id,display_title,slug,composition_year_start,duration_minutes,formation_type,public_summary,composers!inner(display_name)",
+        "id,display_title,slug,composition_year_start,composition_year_end,duration_minutes,formation_type,public_summary,composers!inner(display_name)",
       )
       .eq("publication_status", "published")
       .order("display_title", { ascending: true })
@@ -76,9 +79,13 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
 
     const composer = cleanText(params.compositor);
     const nationality = cleanText(params.nacionalidade);
+    const birthState = brazilianStates.find(([, code]) => code === params.estado_nascimento);
+    const region = brazilianRegions.find((candidate) => candidate === params.regiao_brasileira);
     const gender = cleanText(params.genero);
     if (composer) request = request.ilike("composers.search_document", searchPattern(composer));
     if (nationality) request = request.or(`nationality.ilike.%${nationality}%,ethnicity_identity.ilike.%${nationality}%`, { referencedTable: "composers" });
+    if (birthState) request = request.in("composers.birth_state", [birthState[0], birthState[1]]);
+    if (region) request = request.eq("composers.brazil_region", region);
     if (gender) request = request.ilike("composers.gender", `%${gender}%`);
     const birthFrom = cleanNumber(params.nascimento_de);
     const birthTo = cleanNumber(params.nascimento_ate);
@@ -89,11 +96,11 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     if (deathFrom !== null) request = request.gte("composers.death_year", deathFrom);
     if (deathTo !== null) request = request.lte("composers.death_year", deathTo);
     if (title) request = request.ilike("search_document", searchPattern(title));
-    if (compositionFrom !== null) request = request.gte("composition_year_start", compositionFrom);
-    if (compositionTo !== null) request = request.lte("composition_year_start", compositionTo);
+    if (compositionFrom !== null) request = request.or(`composition_year_start.gte.${compositionFrom},and(composition_year_start.is.null,composition_year_end.gte.${compositionFrom})`);
+    if (compositionTo !== null) request = request.or(`composition_year_start.lte.${compositionTo},and(composition_year_start.is.null,composition_year_end.lte.${compositionTo})`);
     if (durationFrom !== null) request = request.gte("duration_minutes", durationFrom);
     if (durationTo !== null) request = request.lte("duration_minutes", durationTo);
-    if (formation) request = request.ilike("formation_type", `%${formation}%`);
+    if (orchestraTypes.some(type => type === formation)) request = request.eq("formation_type", formation);
     if (instrumentation || instrumentalSolo || vocalSolo) {
       const { data, error } = await supabase.rpc("find_catalog_work_ids", {
         instrument_query: instrumentation, solo_query: instrumentalSolo, voice_query: vocalSolo,
@@ -156,20 +163,25 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
       <form action="/busca-avancada" className="grid gap-6 lg:grid-cols-[360px_1fr]">
         <div className="grid gap-2">
           <details className="bg-[var(--panel-blue)] p-3" open>
-            <summary className="cursor-pointer text-sm font-semibold">Compositor, nacionalidade e datas</summary>
+            <summary className="cursor-pointer text-sm font-semibold">Compositor, origem e datas</summary>
             <div className="mt-4 grid gap-3 text-sm">
               <label className="grid gap-1">
                 Nome
                 <Input className="rounded-sm bg-white" defaultValue={value(params, "compositor")} name="compositor" />
               </label>
               <label className="grid gap-1">
-                Nacionalidade / identidade
-                <Input
-                  className="rounded-sm bg-white"
-                  defaultValue={value(params, "nacionalidade")}
-                  name="nacionalidade"
-                  placeholder="Brasileira, mulheres compositoras..."
-                />
+                Estado de nascimento
+                <select className="h-10 rounded-sm border border-[var(--border)] bg-white px-3" defaultValue={value(params, "estado_nascimento")} name="estado_nascimento">
+                  <option value="">Todos os estados</option>
+                  {brazilianStates.map(([name, code]) => <option key={code} value={code}>{name} ({code})</option>)}
+                </select>
+              </label>
+              <label className="grid gap-1">
+                Região brasileira
+                <select className="h-10 rounded-sm border border-[var(--border)] bg-white px-3" defaultValue={value(params, "regiao_brasileira")} name="regiao_brasileira">
+                  <option value="">Todas as regiões</option>
+                  {brazilianRegions.map(region => <option key={region} value={region}>{region}</option>)}
+                </select>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
@@ -205,39 +217,43 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
                 Título da obra
                 <Input className="rounded-sm bg-white" defaultValue={value(params, "titulo")} name="titulo" />
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <fieldset className="grid gap-1">
+                <legend>Ano de composição</legend>
+                <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
-                  Composição de
+                  De
                   <Input className="rounded-sm bg-white" defaultValue={value(params, "composicao_de")} name="composicao_de" type="number" />
                 </label>
                 <label className="grid gap-1">
                   até
                   <Input className="rounded-sm bg-white" defaultValue={value(params, "composicao_ate")} name="composicao_ate" type="number" />
                 </label>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
+                </div>
+              </fieldset>
+              <fieldset className="grid gap-1">
+                <legend>Duração</legend>
+                <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
-                  Duração de
-                  <Input className="rounded-sm bg-white" defaultValue={value(params, "duracao_de")} name="duracao_de" type="number" />
+                  De
+                  <span className="flex items-center gap-2"><Input className="rounded-sm bg-white" defaultValue={value(params, "duracao_de")} name="duracao_de" min={0} step="any" type="number" /><span>min</span></span>
                 </label>
                 <label className="grid gap-1">
-                  até
-                  <Input className="rounded-sm bg-white" defaultValue={value(params, "duracao_ate")} name="duracao_ate" type="number" />
+                  Até
+                  <span className="flex items-center gap-2"><Input className="rounded-sm bg-white" defaultValue={value(params, "duracao_ate")} name="duracao_ate" min={0} step="any" type="number" /><span>min</span></span>
                 </label>
-              </div>
+                </div>
+              </fieldset>
             </div>
           </details>
 
           <details className="bg-[var(--panel-blue)] p-3">
             <summary className="cursor-pointer text-sm font-semibold">Tipo de orquestra</summary>
             <label className="mt-4 grid gap-1 text-sm">
-              Formação
-              <Input
-                className="rounded-sm bg-white"
-                defaultValue={value(params, "formacao")}
-                name="formacao"
-                placeholder="Orquestra, cordas, câmara..."
-              />
+              Tipo de orquestra
+              <select className="h-10 rounded-sm border border-[var(--border)] bg-white px-3" defaultValue={value(params, "formacao")} name="formacao">
+                <option value="">Qualquer tipo</option>
+                {orchestraTypes.map(type => <option key={type} value={type}>{type}</option>)}
+              </select>
             </label>
           </details>
 
@@ -354,7 +370,7 @@ export default async function AdvancedSearchPage({ searchParams }: AdvancedSearc
                   <Card className="transition-colors hover:border-[var(--border-strong)]">
                     <h3 className="text-xl font-normal">{work.display_title}</h3>
                     <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                      {composerName(work.composers)} · {work.composition_year_start ?? "s/d"} ·{" "}
+                      {composerName(work.composers)} · {compositionYearLabel(work.composition_year_start, work.composition_year_end)} ·{" "}
                       {work.duration_minutes ? `${work.duration_minutes} min` : "duração não informada"}
                     </p>
                     <p className="mt-2 text-sm text-[var(--muted-foreground)]">
