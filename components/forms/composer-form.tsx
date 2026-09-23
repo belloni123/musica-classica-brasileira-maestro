@@ -50,6 +50,11 @@ function listToInput(value?: string[] | null) {
   return value?.join(", ") ?? "";
 }
 
+function dateToInput(value?: string | null) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? "");
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
+}
+
 export function ComposerForm({ action, composer, submitLabel }: ComposerFormProps) {
   return (
     <form action={action} className="grid gap-6">
@@ -102,10 +107,11 @@ export function ComposerForm({ action, composer, submitLabel }: ComposerFormProp
 
       <Card className="grid gap-4">
         <h2 className="text-lg font-semibold">Datas e origem</h2>
+        <p className="text-sm text-[var(--muted-foreground)]">Digite a data completa no formato DD/MM/AAAA. Se souber apenas o ano, deixe a data em branco e preencha o campo Ano.</p>
         <div className="grid gap-4 md:grid-cols-4">
           <label className="grid gap-2 text-sm font-medium">
             Data nascimento
-            <Input defaultValue={composer?.birth_date ?? ""} name="birth_date" type="date" />
+            <Input defaultValue={dateToInput(composer?.birth_date)} name="birth_date" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" placeholder="DD/MM/AAAA" title="Digite a data no formato DD/MM/AAAA" type="text" />
           </label>
           <label className="grid gap-2 text-sm font-medium">
             Ano nascimento
@@ -113,7 +119,7 @@ export function ComposerForm({ action, composer, submitLabel }: ComposerFormProp
           </label>
           <label className="grid gap-2 text-sm font-medium">
             Data morte
-            <Input defaultValue={composer?.death_date ?? ""} name="death_date" type="date" />
+            <Input defaultValue={dateToInput(composer?.death_date)} name="death_date" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" placeholder="DD/MM/AAAA" title="Digite a data no formato DD/MM/AAAA" type="text" />
           </label>
           <label className="grid gap-2 text-sm font-medium">
             Ano morte

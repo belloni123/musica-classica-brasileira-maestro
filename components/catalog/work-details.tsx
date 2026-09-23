@@ -18,8 +18,6 @@ export async function CatalogWorkDetails({ workId }: { workId: string }) {
     <Card><h2 className="text-2xl">Instrumentação</h2>
       {code ? <>
         <p className="mt-3 font-mono text-xl leading-relaxed" aria-label={`Instrumentação: ${code}`}>{code}</p>
-        <p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">Flautas, oboés, clarinetes, fagotes — trompas, trompetes, trombones, tubas — Tmp: tímpanos — Str: cordas cadastradas.</p>
-        <p className="mt-1 text-xs text-[var(--muted-foreground)]">0: nenhum instrumento cadastrado nessa posição; ?: quantidade não informada; +: mínimo; *: consultar função, opcional ou dobramento nos detalhes.</p>
       </> : <p className="mt-3 whitespace-pre-wrap">{data?.instrumentation_text || "Instrumentação não informada."}</p>}
       {!!instrumentation.data?.length && <details className="mt-4"><summary className="cursor-pointer text-sm font-medium">Ver instrumentos e observações</summary>
       {data?.instrumentation_text && <p className="mt-3 whitespace-pre-wrap">{data.instrumentation_text}</p>}

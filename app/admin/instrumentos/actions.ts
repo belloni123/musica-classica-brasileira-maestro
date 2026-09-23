@@ -27,8 +27,9 @@ async function getFamilyName(supabase: Awaited<ReturnType<typeof createClient>>,
 }
 
 async function parsePayload(supabase: Awaited<ReturnType<typeof createClient>>, formData: FormData) {
-  const values = parseInstrumentFormData(formData);
-  const family = await getFamilyName(supabase, values.family_id);
+  const familyId = formData.get("family_id");
+  const family = await getFamilyName(supabase, typeof familyId === "string" ? familyId : null);
+  const values = parseInstrumentFormData(formData, family);
 
   return {
     ...values,

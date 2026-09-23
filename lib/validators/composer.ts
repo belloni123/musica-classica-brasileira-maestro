@@ -14,8 +14,17 @@ const optionalUrl = z
 const optionalDate = z
   .string()
   .trim()
-  .transform((value) => (value.length > 0 ? value : null))
-  .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable());
+  .transform((value) => {
+    if (!value) return null;
+    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : value;
+  })
+  .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Digite a data no formato DD/MM/AAAA.").refine((value) => {
+    const [year, month, day] = value.split("-").map(Number);
+    const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return year > 0 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth[month - 1];
+  }, "Data inválida.").nullable());
 
 const optionalYear = z
   .string()

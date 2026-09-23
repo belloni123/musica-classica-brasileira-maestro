@@ -37,12 +37,12 @@ export const instrumentFormSchema = z.object({
 
 export type InstrumentFormValues = z.infer<typeof instrumentFormSchema>;
 
-export function parseInstrumentFormData(formData: FormData) {
+export function parseInstrumentFormData(formData: FormData, family: string) {
   return instrumentFormSchema.parse({
     name: formData.get("name") ?? "",
     plural_name: formData.get("plural_name") ?? "",
     abbreviation: formData.get("abbreviation") ?? "",
-    family: formData.get("family") ?? "",
+    family,
     family_id: formData.get("family_id") ?? "",
     subfamily: formData.get("subfamily") ?? "",
     alternative_names: formData.get("alternative_names") ?? "",
