@@ -18,6 +18,7 @@ export type WorkFormData = {
   has_soloist?: boolean | null;
   has_choir?: boolean | null;
   main_source?: string | null;
+  performance_notes?: string | null;
   slug?: string | null;
 };
 
@@ -86,6 +87,15 @@ export function WorkForm({ action, composers, submitLabel, work, choirVoices = [
         </select>
       </label>
       <ChoirVoiceFields hasChoir={work?.has_choir} selectedVoices={choirVoices} />
+      <label className="grid gap-2 text-sm font-medium">
+        Observações
+        <textarea
+          className="min-h-24 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
+          defaultValue={work?.performance_notes ?? ""}
+          name="performance_notes"
+          placeholder="Informações úteis para a execução da obra"
+        />
+      </label>
     </Card>
 
     <Card className="grid gap-4">

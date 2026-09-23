@@ -93,6 +93,7 @@ export async function updateWork(workId: string, formData: FormData) {
     has_soloist: values.has_soloist,
     has_choir: values.has_choir,
     main_source: values.main_source,
+    performance_notes: values.performance_notes,
     slug,
     updated_by: user.id,
   };
