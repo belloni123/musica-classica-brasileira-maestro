@@ -1,6 +1,6 @@
-# Documentação funcional completa
+# Brasil Orquestral — documentação funcional completa
 
-# Plataforma de catalogação, pesquisa e difusão da música brasileira de concerto
+## Plataforma de catalogação, pesquisa e difusão da música brasileira de concerto
 
 ## Projeto de referência
 
@@ -13,7 +13,7 @@ https://daniels-orchestral.com/advanced-search/
 
 # 1. Premissa central do projeto
 
-A proposta é desenvolver uma plataforma digital de base de dados musicológica, funcionalmente inspirada no Daniels’ Orchestral Music Online, mas exclusivamente voltada à música brasileira de concerto.
+A proposta é desenvolver o Brasil Orquestral, uma plataforma digital de base de dados musicológica, funcionalmente inspirada no Daniels’ Orchestral Music Online, mas exclusivamente voltada à música brasileira de concerto.
 
 A referência do Daniels deve ser entendida como base funcional, não como modelo visual, textual ou editorial a ser copiado. O objetivo é criar uma plataforma própria, original e academicamente consistente, com foco em catalogação, pesquisa, programação artística, estudo, preservação e difusão da música brasileira.
 

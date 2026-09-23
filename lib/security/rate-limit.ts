@@ -19,11 +19,11 @@ type RateLimitResult = {
 };
 
 const globalRateLimit = globalThis as typeof globalThis & {
-  __mbcRateLimitStore?: Map<string, RateLimitBucket>;
+  __brasilOrquestralRateLimitStore?: Map<string, RateLimitBucket>;
 };
 
-const store = globalRateLimit.__mbcRateLimitStore ?? new Map<string, RateLimitBucket>();
-globalRateLimit.__mbcRateLimitStore = store;
+const store = globalRateLimit.__brasilOrquestralRateLimitStore ?? new Map<string, RateLimitBucket>();
+globalRateLimit.__brasilOrquestralRateLimitStore = store;
 
 export function consumeRateLimit(options: RateLimitOptions): RateLimitResult {
   const now = Date.now();
@@ -71,4 +71,3 @@ function cleanupExpiredBuckets(now: number) {
     }
   }
 }
-

@@ -19,6 +19,8 @@ type ComposerRow = {
   birth_city: string | null;
   birth_state: string | null;
   short_biography: string | null;
+  photo_path: string | null;
+  photo_url?: string | null;
 };
 
 export const dynamic = "force-dynamic";
@@ -37,10 +39,15 @@ async function fetchPublishedComposers(letter: string) {
     // Page before locale-aware sorting, so neither the 500-row cap nor accents lose entries.
     for (let offset = 0; ; offset += 500) {
       const { data, error } = await supabase.from("composers")
-        .select("id,display_name,canonical_name,surname,slug,birth_year,death_year,birth_city,birth_state,short_biography")
+        .select("id,display_name,canonical_name,surname,slug,birth_year,death_year,birth_city,birth_state,short_biography,photo_path")
         .eq("publication_status", "published").order("id").range(offset, offset + 499);
       if (error) throw error;
-      composers.push(...(data ?? []) as ComposerRow[]);
+      composers.push(...(data ?? []).map((composer) => ({
+        ...(composer as ComposerRow),
+        photo_url: composer.photo_path
+          ? supabase.storage.from("composer-photos").getPublicUrl(composer.photo_path).data.publicUrl
+          : null,
+      })));
       if (!data || data.length < 500) break;
     }
     return { composers: sortComposers(composers, letter), error: null };
@@ -118,16 +125,28 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
                     {letterComposers.map((composer) => (
                       <Link href={`/compositores/${composer.slug}`} key={composer.id}>
                         <Card className="h-full transition-colors hover:border-[var(--border-strong)]">
-                          <h3 className="text-xl font-normal">{composer.display_name}</h3>
-                          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                            {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
-                            {composerBirthplace(composer.birth_city, composer.birth_state)}
-                          </p>
-                          {composer.short_biography ? (
-                            <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                              {composer.short_biography}
-                            </p>
-                          ) : null}
+                          <div className="flex items-start gap-4">
+                            {composer.photo_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                alt=""
+                                className="h-20 w-20 shrink-0 rounded-lg object-cover"
+                                src={composer.photo_url}
+                              />
+                            ) : null}
+                            <div className="min-w-0">
+                              <h3 className="text-xl font-normal">{composer.display_name}</h3>
+                              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                                {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
+                                {composerBirthplace(composer.birth_city, composer.birth_state)}
+                              </p>
+                              {composer.short_biography ? (
+                                <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--muted-foreground)]">
+                                  {composer.short_biography}
+                                </p>
+                              ) : null}
+                            </div>
+                          </div>
                         </Card>
                       </Link>
                     ))}

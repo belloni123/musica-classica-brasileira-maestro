@@ -17,7 +17,7 @@ export default async function PublicComposerPage({ params }: PageProps) {
     const supabase = await createClient();
     const { data: composer, error } = await supabase
       .from("composers")
-      .select("id,display_name,birth_year,death_year,birth_city,birth_state,short_biography,long_biography")
+      .select("id,display_name,birth_year,death_year,birth_city,birth_state,short_biography,long_biography,photo_path")
       .eq("slug", slug)
       .eq("publication_status", "published")
       .maybeSingle();
@@ -31,15 +31,25 @@ export default async function PublicComposerPage({ params }: PageProps) {
 
     return (
       <div className="grid gap-8">
-        <div className="max-w-3xl">
-          <p className="mb-3 text-sm text-[var(--accent)]">Compositor</p>
-          <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
-            {composer.display_name}
-          </h1>
-          <p className="mt-4 text-lg text-[var(--muted-foreground)]">
-            {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
-            {composerBirthplace(composer.birth_city, composer.birth_state)}
-          </p>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+          {composer.photo_path ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt={`Foto de ${composer.display_name}`}
+              className="h-36 w-36 shrink-0 rounded-xl object-cover sm:h-44 sm:w-44"
+              src={supabase.storage.from("composer-photos").getPublicUrl(composer.photo_path).data.publicUrl}
+            />
+          ) : null}
+          <div className="max-w-3xl">
+            <p className="mb-3 text-sm text-[var(--accent)]">Compositor</p>
+            <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">
+              {composer.display_name}
+            </h1>
+            <p className="mt-4 text-lg text-[var(--muted-foreground)]">
+              {composer.birth_year ?? "?"} - {composer.death_year ?? ""} ·{" "}
+              {composerBirthplace(composer.birth_city, composer.birth_state)}
+            </p>
+          </div>
         </div>
         <Card className="max-w-4xl">
           <h2 className="text-2xl font-normal">Biografia</h2>

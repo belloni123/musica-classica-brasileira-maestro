@@ -4,7 +4,7 @@ Data: 2026-07-07
 
 ## Escopo
 
-Esta auditoria observa o funcionamento do Daniels' Orchestral Music Online como referencia de produto para a plataforma Musica Brasileira de Concerto.
+Esta auditoria observa o funcionamento do Daniels' Orchestral Music Online como referência de produto para a plataforma Brasil Orquestral.
 
 O objetivo nao e copiar conteudo proprietario, base de dados ou textos longos. O objetivo e entender arquitetura de navegacao, padrao de busca, paywall, area de conta e apresentacao de registros para adaptar ao nosso catalogo brasileiro.
 
@@ -296,4 +296,3 @@ Para o nosso projeto Next/Supabase:
 - [ ] Estatisticas de uso por conta.
 - [ ] Planos com assentos/institucional.
 - [ ] Checkout e webhooks.
-

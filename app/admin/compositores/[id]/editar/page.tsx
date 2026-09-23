@@ -26,6 +26,10 @@ export default async function EditComposerPage({ params }: EditComposerPageProps
     notFound();
   }
 
+  const currentPhotoUrl = composer.photo_path
+    ? supabase.storage.from("composer-photos").getPublicUrl(composer.photo_path).data.publicUrl
+    : null;
+
   const updateAction = updateComposer.bind(null, id);
   const publishAction = publishComposer.bind(null, id);
   const archiveAction = archiveComposer.bind(null, id);
@@ -56,7 +60,12 @@ export default async function EditComposerPage({ params }: EditComposerPageProps
             </form>
           </div>
         </div>
-        <ComposerForm action={updateAction} composer={composer} submitLabel="Salvar alteracoes" />
+        <ComposerForm
+          action={updateAction}
+          composer={composer}
+          currentPhotoUrl={currentPhotoUrl}
+          submitLabel="Salvar alteracoes"
+        />
       </section>
     </>
   );

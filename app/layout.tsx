@@ -4,9 +4,9 @@ import { SiteHeader } from "@/components/layout/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Música Brasileira de Concerto",
+  title: "Brasil Orquestral",
   description:
-    "Plataforma de catalogação, pesquisa e difusão da música brasileira de concerto.",
+    "Brasil Orquestral: plataforma de catalogação, pesquisa e difusão da música brasileira de concerto.",
 };
 
 export default function RootLayout({

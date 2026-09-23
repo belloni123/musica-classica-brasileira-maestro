@@ -2,7 +2,7 @@
 
 Dominio: `https://obras.maestrothiagosantos.com.br`
 
-Projeto Coolify: `Musica Classica Brasileira`
+Projeto: `Brasil Orquestral`
 
 ## Supabase
 

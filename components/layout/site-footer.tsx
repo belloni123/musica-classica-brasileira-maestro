@@ -24,7 +24,7 @@ export function SiteFooter() {
         <section className="border-y border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] py-4 md:border-x md:border-y-0 md:px-6 md:py-0">
           <h2 className="font-semibold uppercase">Nota</h2>
           <p className="mt-2 leading-6">
-            Música Brasileira de Concerto é uma base de pesquisa e catalogação. A plataforma não
+            Brasil Orquestral é uma base de pesquisa e catalogação. A plataforma não
             substitui editoras, acervos ou detentores de direitos.
           </p>
         </section>

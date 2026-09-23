@@ -28,9 +28,9 @@ export async function SiteHeader() {
           </span>
           <span className="grid leading-tight">
             <span className="hidden text-[var(--catalog-blue)] sm:inline">
-              Música Brasileira de Concerto
+              Brasil Orquestral
             </span>
-            <span className="text-[var(--catalog-blue)] sm:hidden">MBC</span>
+            <span className="text-[var(--catalog-blue)] sm:hidden">Brasil Orquestral</span>
             <span className="hidden text-xs font-normal text-[var(--catalog-blue)] sm:inline">
               ferramenta de busca de repertório brasileiro
             </span>

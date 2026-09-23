@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ComposerPhotoField } from "@/components/forms/composer-photo-field";
 import { composerReliabilityLevels } from "@/lib/validators/composer";
 
 export type ComposerFormData = {
@@ -29,12 +30,14 @@ export type ComposerFormData = {
   notes?: string | null;
   reliability_level?: string | null;
   slug?: string | null;
+  photo_path?: string | null;
 };
 
 type ComposerFormProps = {
   action: (formData: FormData) => Promise<void>;
   composer?: ComposerFormData;
   submitLabel: string;
+  currentPhotoUrl?: string | null;
 };
 
 const reliabilityLabels: Record<(typeof composerReliabilityLevels)[number], string> = {
@@ -55,9 +58,9 @@ function dateToInput(value?: string | null) {
   return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
 }
 
-export function ComposerForm({ action, composer, submitLabel }: ComposerFormProps) {
+export function ComposerForm({ action, composer, submitLabel, currentPhotoUrl }: ComposerFormProps) {
   return (
-    <form action={action} className="grid gap-6">
+    <form action={action} className="grid gap-6" encType="multipart/form-data">
       <Card className="grid gap-4">
         <div>
           <h2 className="text-lg font-semibold">Identificacao</h2>
@@ -103,6 +106,16 @@ export function ComposerForm({ action, composer, submitLabel }: ComposerFormProp
             placeholder="Separar por virgulas"
           />
         </label>
+      </Card>
+
+      <Card className="grid gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">Foto</h2>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Todos os compositores devem ter uma foto quadrada com o mesmo enquadramento.
+          </p>
+        </div>
+        <ComposerPhotoField currentPhotoUrl={currentPhotoUrl} required={!composer?.photo_path} />
       </Card>
 
       <Card className="grid gap-4">

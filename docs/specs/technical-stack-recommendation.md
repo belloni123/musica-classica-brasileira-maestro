@@ -1,9 +1,9 @@
 # Documentação de Stack e Arquitetura Técnica
 
-## Projeto: Plataforma de Pesquisa da Música Brasileira de Concerto
+## Projeto: Brasil Orquestral — Plataforma de Pesquisa
 
 **Cliente:** projeto interno  
-**Objetivo:** Criar uma plataforma de catalogação, pesquisa, assinatura e difusão da música brasileira de concerto, inspirada funcionalmente no Daniels’ Orchestral Music Online, mas com metodologia, base de dados, identidade e evolução próprias.
+**Objetivo:** Criar o Brasil Orquestral, uma plataforma de catalogação, pesquisa, assinatura e difusão da música brasileira de concerto, inspirada funcionalmente no Daniels’ Orchestral Music Online, mas com metodologia, base de dados, identidade e evolução próprias.
 
 ---
 
