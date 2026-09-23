@@ -62,29 +62,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-5">
-        <div className="max-w-3xl">
-          <h2 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)]">
-            Conheça a plataforma
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-            O maestro apresenta a proposta, o valor musicológico da base e sua contribuição para a
-            pesquisa, a programação e a difusão da música brasileira de concerto.
-          </p>
-        </div>
-        <div className="aspect-video w-full overflow-hidden rounded-md border border-[var(--border-strong)] bg-[var(--foreground)]">
-          <iframe
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="h-full w-full"
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-            src="https://www.youtube.com/embed/jfVPaGI-V1w"
-            title="Apresentação da Música Brasileira de Concerto"
-          />
-        </div>
-      </section>
-
       <section className="grid gap-4 md:grid-cols-[1fr_320px]">
         <Card>
           <h2 className="text-2xl font-normal">A plataforma oferece</h2>
