@@ -16,6 +16,7 @@ function load(path) {
 
 const { parseInstrumentFormData } = load('../lib/validators/instrument.ts');
 const { parseComposerFormData } = load('../lib/validators/composer.ts');
+const { parseWorkInstrumentationBatchFormData } = load('../lib/validators/work-instrumentation.ts');
 
 test('instrument form accepts a selected family and saves its resolved name', () => {
   const form = new FormData();
@@ -46,4 +47,36 @@ test('composer dates accept manual Brazilian dates and year-only records', () =>
   assert.throws(() => parseComposerFormData(form));
   form.set('birth_date', '29/02/1804');
   assert.equal(parseComposerFormData(form).birth_date, '1804-02-29');
+});
+
+test('instrumentation batch parses multiple rows and exact quantities together', () => {
+  const form = new FormData();
+  form.set('item_count', '2');
+  form.set('instrument_id_0', '123e4567-e89b-12d3-a456-426614174000');
+  form.set('exact_quantity_0', '2');
+  form.set('required_0', 'on');
+  form.set('instrument_id_1', '123e4567-e89b-12d3-a456-426614174001');
+  form.set('exact_quantity_1', '4');
+  form.set('optional_1', 'on');
+  const rows = parseWorkInstrumentationBatchFormData(form);
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows.map(({ minimum_quantity, maximum_quantity }) => [minimum_quantity, maximum_quantity]), [[2, 2], [4, 4]]);
+  assert.equal(rows[0].required, true);
+  assert.equal(rows[1].optional, true);
+});
+
+test('instrumentation batch rejects invalid rows before any insert', () => {
+  const form = new FormData();
+  form.set('item_count', '2');
+  form.set('instrument_id_0', '123e4567-e89b-12d3-a456-426614174000');
+  form.set('exact_quantity_0', '2');
+  form.set('instrument_id_1', '123e4567-e89b-12d3-a456-426614174001');
+  form.set('minimum_quantity_1', '5');
+  form.set('maximum_quantity_1', '2');
+  assert.throws(() => parseWorkInstrumentationBatchFormData(form));
+  form.set('maximum_quantity_1', '6');
+  form.set('exact_quantity_1', '4');
+  assert.throws(() => parseWorkInstrumentationBatchFormData(form));
+  form.set('item_count', '41');
+  assert.throws(() => parseWorkInstrumentationBatchFormData(form));
 });

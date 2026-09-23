@@ -65,3 +65,31 @@ export function parseWorkInstrumentationFormData(formData: FormData) {
     source: formData.get("source") ?? "",
   });
 }
+
+export function parseWorkInstrumentationBatchFormData(formData: FormData) {
+  const rawCount = formData.get("item_count");
+  const count = typeof rawCount === "string" && /^\d+$/.test(rawCount) ? Number(rawCount) : 0;
+  if (count < 1 || count > 40) {
+    throw new Error("Adicione entre 1 e 40 instrumentos por vez.");
+  }
+
+  return Array.from({ length: count }, (_, index) => {
+    const exact = formData.get(`exact_quantity_${index}`)?.toString().trim() ?? "";
+    const minimum = formData.get(`minimum_quantity_${index}`)?.toString().trim() ?? "";
+    const maximum = formData.get(`maximum_quantity_${index}`)?.toString().trim() ?? "";
+    if (exact && (minimum || maximum)) {
+      throw new Error(`Instrumento ${index + 1}: use quantidade exata ou intervalo, não ambos.`);
+    }
+
+    const item = new FormData();
+    for (const name of [
+      "instrument_id", "quantity_text", "role", "required", "optional", "doubling",
+      "doubled_instrument_id", "substitutable", "notes", "source",
+    ]) {
+      item.set(name, formData.get(`${name}_${index}`)?.toString() ?? "");
+    }
+    item.set("minimum_quantity", exact || minimum);
+    item.set("maximum_quantity", exact || maximum);
+    return parseWorkInstrumentationFormData(item);
+  });
+}

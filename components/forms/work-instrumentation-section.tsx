@@ -1,11 +1,8 @@
 import { Trash2 } from "lucide-react";
-import {
-  addWorkInstrumentation,
-  removeWorkInstrumentation,
-} from "@/app/admin/obras/instrumentation-actions";
+import { removeWorkInstrumentation } from "@/app/admin/obras/instrumentation-actions";
+import { WorkInstrumentationBatchForm } from "@/components/forms/work-instrumentation-batch-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { sortInstrumentationRows } from "@/lib/catalog/instrumentation";
 
 export type InstrumentOption = {
@@ -54,7 +51,6 @@ export function WorkInstrumentationSection({
   rows: WorkInstrumentationRow[];
   workId: string;
 }) {
-  const addAction = addWorkInstrumentation.bind(null, workId);
   const orderedRows = sortInstrumentationRows(rows, row => instrumentName(instruments, row.instrument_id));
 
   return (
@@ -123,88 +119,7 @@ export function WorkInstrumentationSection({
         </p>
       )}
 
-      <form action={addAction} className="grid gap-4 border-t border-[var(--border)] pt-5">
-        <h3 className="font-semibold">Adicionar instrumento</h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm font-medium">
-            Instrumento
-            <select
-              className="h-10 rounded-md border border-[var(--border)] bg-white px-3 text-sm"
-              name="instrument_id"
-              required
-            >
-              <option value="">Selecionar instrumento</option>
-              {instruments.map((instrument) => (
-                <option key={instrument.id} value={instrument.id}>
-                  {instrument.name} · {instrument.family}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-2 text-sm font-medium">
-            Instrumento dobrado
-            <select
-              className="h-10 rounded-md border border-[var(--border)] bg-white px-3 text-sm"
-              name="doubled_instrument_id"
-            >
-              <option value="">Nenhum</option>
-              {instruments.map((instrument) => (
-                <option key={instrument.id} value={instrument.id}>
-                  {instrument.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          <label className="grid gap-2 text-sm font-medium">
-            Qtd. mínima
-            <Input min={0} name="minimum_quantity" type="number" />
-          </label>
-          <label className="grid gap-2 text-sm font-medium">
-            Qtd. máxima
-            <Input min={0} name="maximum_quantity" type="number" />
-          </label>
-          <label className="grid gap-2 text-sm font-medium">
-            Qtd. textual
-            <Input name="quantity_text" placeholder="Ex.: 2 ou 2-3" />
-          </label>
-        </div>
-        <label className="grid gap-2 text-sm font-medium">Função
-          <select name="role" className="h-10 rounded-md border bg-white px-3"><option value="">Conjunto</option><option value="solista">Solista</option></select>
-        </label>
-        <div className="grid gap-3 md:grid-cols-4">
-          <label className="flex items-center gap-2 text-sm font-medium">
-            <input defaultChecked name="required" type="checkbox" />
-            Obrigatório
-          </label>
-          <label className="flex items-center gap-2 text-sm font-medium">
-            <input name="optional" type="checkbox" />
-            Opcional
-          </label>
-          <label className="flex items-center gap-2 text-sm font-medium">
-            <input name="doubling" type="checkbox" />
-            Dobramento
-          </label>
-          <label className="flex items-center gap-2 text-sm font-medium">
-            <input name="substitutable" type="checkbox" />
-            Substituível
-          </label>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm font-medium">
-            Fonte
-            <Input name="source" />
-          </label>
-          <label className="grid gap-2 text-sm font-medium">
-            Observação
-            <Input name="notes" />
-          </label>
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit">Adicionar instrumento</Button>
-        </div>
-      </form>
+      <WorkInstrumentationBatchForm instruments={instruments} workId={workId} />
     </Card>
   );
 }

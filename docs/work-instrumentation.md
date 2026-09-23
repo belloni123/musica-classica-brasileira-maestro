@@ -7,7 +7,7 @@ Na página `/admin/obras/[id]/editar`, foi adicionada uma primeira versão da in
 Ela permite:
 
 - listar instrumentos vinculados à obra;
-- adicionar instrumento;
+- preparar até 40 instrumentos e adicioná-los em uma única operação;
 - remover instrumento;
 - informar quantidade minima;
 - informar quantidade maxima;
@@ -26,6 +26,9 @@ As quantidades sao validadas por Zod:
 
 - quantidades devem ser inteiros positivos ou zero;
 - quantidade minima nao pode ser maior que quantidade maxima.
+- a quantidade exata preenche mínimo e máximo com o mesmo valor;
+- quantidade exata e intervalo não podem ser preenchidos na mesma linha;
+- todas as linhas do lote são validadas antes da gravação e enviadas em um único insert.
 
 ## Auditoria
 

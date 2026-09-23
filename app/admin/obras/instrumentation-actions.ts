@@ -3,23 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { requireEditorialWriteAccess } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { parseWorkInstrumentationFormData } from "@/lib/validators/work-instrumentation";
+import { parseWorkInstrumentationBatchFormData } from "@/lib/validators/work-instrumentation";
 
-export async function addWorkInstrumentation(workId: string, formData: FormData) {
+export async function addWorkInstrumentations(workId: string, formData: FormData) {
   await requireEditorialWriteAccess();
-  const values = parseWorkInstrumentationFormData(formData);
+  const values = parseWorkInstrumentationBatchFormData(formData);
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("work_instrumentation")
-    .insert({
-      work_id: workId,
-      ...values,
-    })
-    .select("id")
-    .single();
+    .insert(values.map((value) => ({ work_id: workId, ...value })));
 
-  if (error || !data) {
-    throw new Error(`Erro ao adicionar instrumentacao: ${error?.message ?? "sem retorno"}`);
+  if (error) {
+    throw new Error(`Erro ao adicionar instrumentação: ${error.message}`);
   }
 
   revalidatePath(`/admin/obras/${workId}/editar`);
