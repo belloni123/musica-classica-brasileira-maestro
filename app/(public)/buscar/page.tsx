@@ -143,9 +143,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   placeholder="Título, apelido, opus ou catálogo"
                 />
               </label>
-              <div className="mt-2 flex items-center gap-2">
-                <Button aria-label="Buscar" size="sm" type="submit" variant="secondary">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button type="submit" variant="primary">
                   <Search size={19} aria-hidden="true" />
+                  Pesquisar
                 </Button>
                 <Button asChild aria-label="Limpar" size="sm" variant="secondary">
                   <Link href="/buscar">
