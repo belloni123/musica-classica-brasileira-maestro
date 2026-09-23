@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { firstRelated, safeExternalUrl, type WorkDetails } from "@/lib/catalog/types";
-import { instrumentationCode } from "@/lib/catalog/instrumentation";
+import { instrumentationCode, sortInstrumentationRows } from "@/lib/catalog/instrumentation";
 
 export async function CatalogWorkDetails({ workId, durationMinutes, formationType }: {
   workId: string; durationMinutes: number | null; formationType: string | null;
@@ -17,12 +17,12 @@ export async function CatalogWorkDetails({ workId, durationMinutes, formationTyp
   const data = details.data as WorkDetails | null;
   const code = instrumentationCode(instrumentation.data ?? []);
   const mainSourceUrl = safeExternalUrl(data?.main_source);
-  const visibleInstrumentation = (instrumentation.data ?? []).filter(row => {
+  const visibleInstrumentation = sortInstrumentationRows((instrumentation.data ?? []).filter(row => {
     const name = firstRelated(row.instruments)?.name?.trim().toLocaleLowerCase("pt-BR") ?? "";
     const isStrings = name === "cordas" || name === "strings";
     const hasQuantity = Boolean(row.quantity_text?.trim()) || row.minimum_quantity !== null || row.maximum_quantity !== null;
     return !isStrings || hasQuantity;
-  });
+  }), row => firstRelated(row.instruments)?.name ?? "Instrumento");
   return <>
     <Card>
       <h2 className="text-2xl">Informações para performance</h2>

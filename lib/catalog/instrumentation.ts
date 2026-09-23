@@ -46,6 +46,30 @@ function isStrings(row: InstrumentationRow) { return stringNames.includes(normal
 function isTimpani(row: InstrumentationRow) { return ["timpanos", "timpano", "timpani"].includes(normalized(instrumentName(row))); }
 const matching = (rows: InstrumentationRow[], name: string) => rows.filter(row => normalized(instrumentName(row)) === normalized(name));
 
+const codeOrder = orchestralInstruments.map(instrument => normalized(instrument.name));
+const stringOrder = ["cordas", "strings", "violino", "viola", "violoncelo", "contrabaixo"];
+const timpaniNames = ["timpanos", "timpano", "timpani"];
+
+/** Show instruments in the same sequence as the orchestral code, not insertion order. */
+export function sortInstrumentationRows<T>(rows: readonly T[], getName: (row: T) => string): T[] {
+  function position(name: string) {
+    const value = normalized(name);
+    const windIndex = codeOrder.indexOf(value);
+    if (windIndex !== -1) return [windIndex, 0] as const;
+    if (timpaniNames.includes(value)) return [codeOrder.length, 0] as const;
+    const stringIndex = stringOrder.indexOf(value);
+    if (stringIndex !== -1) return [codeOrder.length + 1, stringIndex] as const;
+    return [codeOrder.length + 2, 0] as const;
+  }
+  return [...rows].sort((a, b) => {
+    const nameA = getName(a);
+    const nameB = getName(b);
+    const [groupA, indexA] = position(nameA);
+    const [groupB, indexB] = position(nameB);
+    return groupA - groupB || indexA - indexB || nameA.localeCompare(nameB, "pt-BR", { sensitivity: "base" });
+  });
+}
+
 export function instrumentationCode(rows: InstrumentationRow[]) {
   if (!rows.length) return null;
   const quantities = orchestralInstruments.map(instrument => quantityCode(matching(rows, instrument.name)));

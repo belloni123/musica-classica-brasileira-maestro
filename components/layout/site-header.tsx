@@ -23,20 +23,17 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface-strong)]">
       <div className="mx-auto flex min-h-[72px] w-full max-w-7xl items-center justify-between gap-6 px-5 md:px-8">
         <Link className="flex min-w-0 items-center gap-3 text-sm font-semibold md:text-base" href="/">
-          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--catalog-blue)] text-white shadow-[var(--button-inset)]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[var(--catalog-blue)] text-white shadow-[var(--button-inset)]">
             <LibraryBig size={17} aria-hidden="true" />
           </span>
           <span className="grid leading-tight">
-            <span className="hidden text-[var(--catalog-blue)] sm:inline">
-              Brasil Orquestral
-            </span>
-            <span className="text-[var(--catalog-blue)] sm:hidden">Brasil Orquestral</span>
-            <span className="hidden text-xs font-normal text-[var(--catalog-blue)] sm:inline">
+            <span className="whitespace-nowrap text-[var(--catalog-blue)]">Brasil Orquestral</span>
+            <span className="hidden whitespace-nowrap text-xs font-normal text-[var(--catalog-blue)] xl:inline">
               ferramenta de busca de repertório brasileiro
             </span>
           </span>
         </Link>
-        <nav className="hidden self-stretch md:flex" aria-label="Navegação pública">
+        <nav className="hidden self-stretch xl:flex" aria-label="Navegação pública">
           {publicLinks.map((link) => (
             <Link
               className="flex items-center px-4 text-xs font-semibold uppercase tracking-normal text-[var(--foreground)] hover:bg-[var(--nav-active)]"
@@ -80,7 +77,7 @@ export async function SiteHeader() {
               <span className="hidden sm:inline">{user ? "Minha conta" : "Entrar"}</span>
             </Link>
           </Button>
-          <details className="relative md:hidden">
+          <details className="relative xl:hidden">
             <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-md border border-[var(--border)] bg-[var(--nav-active)]">
               <Menu size={22} aria-hidden="true" />
               <span className="sr-only">Abrir menu</span>

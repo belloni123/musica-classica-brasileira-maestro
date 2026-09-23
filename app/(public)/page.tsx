@@ -8,7 +8,13 @@ export default function HomePage() {
       <section className="w-full py-8 lg:flex lg:items-center lg:justify-center lg:py-20">
         <div className="mx-auto max-w-5xl lg:text-center">
           <h1 className="text-4xl font-semibold leading-none text-[var(--foreground-strong)] sm:text-5xl lg:text-7xl lg:leading-[1.04] xl:text-[5rem]">
-            Brasil Orquestral®️
+            Brasil Orquestral
+            <sup
+              aria-label="marca registrada"
+              className="ml-1 align-super text-[0.42em] font-semibold leading-none text-[var(--foreground-strong)]"
+            >
+              ®
+            </sup>
           </h1>
           <h2 className="mt-5 max-w-4xl text-2xl font-normal leading-tight text-[var(--foreground-strong)] sm:text-3xl lg:mx-auto lg:mt-7 lg:text-4xl">
             Guia de referência do repertório brasileiro para orquestra.

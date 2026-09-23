@@ -15,12 +15,19 @@ export default async function PublicComposerPage({ params }: PageProps) {
 
 
     const supabase = await createClient();
-    const { data: composer, error } = await supabase
+    const publicColumns = "id,display_name,birth_year,death_year,birth_city,birth_state,short_biography,long_biography";
+    const withPhoto = await supabase
       .from("composers")
-      .select("id,display_name,birth_year,death_year,birth_city,birth_state,short_biography,long_biography,photo_path")
+      .select(`${publicColumns},photo_path`)
       .eq("slug", slug)
       .eq("publication_status", "published")
       .maybeSingle();
+    const withoutPhoto = withPhoto.error?.code === "42501"
+      ? await supabase.from("composers").select(publicColumns)
+        .eq("slug", slug).eq("publication_status", "published").maybeSingle()
+      : null;
+    const error = withoutPhoto ? withoutPhoto.error : withPhoto.error;
+    const composer = (withoutPhoto?.data ?? withPhoto.data) as (typeof withPhoto.data) | null;
 
     if (error) throw new Error("Não foi possível consultar o compositor.");
     if (!composer) notFound();
@@ -32,7 +39,7 @@ export default async function PublicComposerPage({ params }: PageProps) {
     return (
       <div className="grid gap-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          {composer.photo_path ? (
+          {!withoutPhoto && composer.photo_path ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               alt={`Foto de ${composer.display_name}`}

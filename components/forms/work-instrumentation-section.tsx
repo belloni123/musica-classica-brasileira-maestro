@@ -6,6 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { sortInstrumentationRows } from "@/lib/catalog/instrumentation";
 
 export type InstrumentOption = {
   id: string;
@@ -54,6 +55,7 @@ export function WorkInstrumentationSection({
   workId: string;
 }) {
   const addAction = addWorkInstrumentation.bind(null, workId);
+  const orderedRows = sortInstrumentationRows(rows, row => instrumentName(instruments, row.instrument_id));
 
   return (
     <Card className="grid gap-5">
@@ -77,7 +79,7 @@ export function WorkInstrumentationSection({
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {orderedRows.map((row) => {
                 const removeAction = removeWorkInstrumentation.bind(null, workId, row.id);
                 return (
                   <tr className="border-t border-[var(--border)]" key={row.id}>

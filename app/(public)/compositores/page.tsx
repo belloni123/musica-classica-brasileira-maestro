@@ -36,19 +36,27 @@ async function fetchPublishedComposers(letter: string) {
   try {
     const supabase = await createClient();
     const composers: ComposerRow[] = [];
+    const publicColumns = "id,display_name,canonical_name,surname,slug,birth_year,death_year,birth_city,birth_state,short_biography";
     // Page before locale-aware sorting, so neither the 500-row cap nor accents lose entries.
     for (let offset = 0; ; offset += 500) {
-      const { data, error } = await supabase.from("composers")
-        .select("id,display_name,canonical_name,surname,slug,birth_year,death_year,birth_city,birth_state,short_biography,photo_path")
+      const withPhoto = await supabase.from("composers")
+        .select(`${publicColumns},photo_path`)
         .eq("publication_status", "published").order("id").range(offset, offset + 499);
+      // Older column grants can reject photo_path while the public catalog remains readable.
+      const withoutPhoto = withPhoto.error?.code === "42501"
+        ? await supabase.from("composers").select(publicColumns)
+          .eq("publication_status", "published").order("id").range(offset, offset + 499)
+        : null;
+      const error = withoutPhoto ? withoutPhoto.error : withPhoto.error;
       if (error) throw error;
-      composers.push(...(data ?? []).map((composer) => ({
+      const data = (withoutPhoto?.data ?? withPhoto.data ?? []) as ComposerRow[];
+      composers.push(...data.map((composer) => ({
         ...(composer as ComposerRow),
-        photo_url: composer.photo_path
+        photo_url: !withoutPhoto && composer.photo_path
           ? supabase.storage.from("composer-photos").getPublicUrl(composer.photo_path).data.publicUrl
           : null,
       })));
-      if (!data || data.length < 500) break;
+      if (data.length < 500) break;
     }
     return { composers: sortComposers(composers, letter), error: null };
   } catch (error) {
@@ -103,8 +111,11 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
         disponíveis conforme o nível de acesso do usuário.
       </p>
 
-      {error ? <Card className="text-sm text-[var(--muted-foreground)]">{error}</Card> : null}
-      {composers.length === 0 ? (
+      {error ? (
+        <Card className="text-sm text-[var(--muted-foreground)]" role="alert">
+          Não foi possível carregar os compositores. Tente novamente mais tarde.
+        </Card>
+      ) : composers.length === 0 ? (
         <EmptyState
           title="Nenhum compositor publicado"
           description="Nenhum compositor está disponível nesta seleção."

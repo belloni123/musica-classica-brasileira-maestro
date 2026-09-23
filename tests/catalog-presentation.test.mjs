@@ -10,7 +10,7 @@ function load(path) {
   return exports;
 }
 const { sortComposers, composerIndexLetter, composerBirthplace } = load('../lib/catalog/composers.ts');
-const { instrumentationCode, instrumentationCriteria, matchesInstrumentation, orchestralInstruments } = load('../lib/catalog/instrumentation.ts');
+const { instrumentationCode, instrumentationCriteria, matchesInstrumentation, orchestralInstruments, sortInstrumentationRows } = load('../lib/catalog/instrumentation.ts');
 const composer = (display_name, surname = null) => ({ display_name, surname, canonical_name: 'Nome completo' });
 const row = (name, quantity = 2, overrides = {}) => ({ instruments: { name }, minimum_quantity: quantity, maximum_quantity: quantity, quantity_text: null, ...overrides });
 const orchestra = orchestralInstruments.map((instrument, index) => row(instrument.name, [2,2,2,2,4,2,3,1][index]));
@@ -34,6 +34,12 @@ test('orchestral code follows user example, regardless of input order', () => {
   assert.equal(instrumentationCode([...orchestra, row('Tímpanos'), row('Violino'), row('Viola')].reverse()), '2 2 2 2 - 4 2 3 1 - Tmp - Str');
   assert.equal(instrumentationCode([]), null);
   assert.equal(instrumentationCode([row('Flauta'),row('Clarinete'),row('Trompa'),row('Trompete')]), '2 0 2 0 - 2 2 0 0');
+});
+test('instrument lists follow orchestral code order regardless of insertion order', () => {
+  const entered = [row('Trompa', 4), row('Flauta', 2), row('Piano', 1), row('Violoncelo', 2), row('Tímpanos', 1), row('Oboé', 2), row('Violino', 2)];
+  assert.deepEqual(sortInstrumentationRows(entered, item => item.instruments.name).map(item => item.instruments.name),
+    ['Flauta', 'Oboé', 'Trompa', 'Tímpanos', 'Violino', 'Violoncelo', 'Piano']);
+  assert.equal(entered[0].instruments.name, 'Trompa');
 });
 test('summary preserves ranges, unknowns, extras and optional/doubling markers', () => {
   const code = instrumentationCode([row('Flauta', 2, {maximum_quantity:3}), row('Oboé', null), row('Clarinete',2,{doubling:true}), row('Piano',1)]);
