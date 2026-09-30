@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ComposerAvatar } from "@/components/catalog/composer-avatar";
 import { createClient } from "@/lib/supabase/server";
 import { composerBirthplace, composerIndexLetter, sortComposers } from "@/lib/catalog/composers";
 
@@ -137,14 +138,7 @@ export default async function ComposersPage({ searchParams }: ComposersPageProps
                       <Link href={`/compositores/${composer.slug}`} key={composer.id}>
                         <Card className="h-full transition-colors hover:border-[var(--border-strong)]">
                           <div className="flex items-start gap-4">
-                            {composer.photo_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                alt=""
-                                className="h-20 w-20 shrink-0 rounded-lg object-cover"
-                                src={composer.photo_url}
-                              />
-                            ) : null}
+                            <ComposerAvatar className="h-20 w-20" name={composer.display_name} src={composer.photo_url} />
                             <div className="min-w-0">
                               <h3 className="text-xl font-normal">{composer.display_name}</h3>
                               <p className="mt-1 text-sm text-[var(--muted-foreground)]">

@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   output: "standalone",
   experimental: {
     serverActions: {
-      bodySizeLimit: "5mb",
+      // A 5 MB portrait plus the composer fields needs multipart overhead.
+      bodySizeLimit: "6mb",
     },
   },
   async headers() {

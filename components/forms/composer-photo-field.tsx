@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { ComposerAvatar } from "@/components/catalog/composer-avatar";
 
 const VIEWPORT_SIZE = 256;
 const OUTPUT_SIZE = 800;
@@ -12,7 +13,6 @@ type Point = { x: number; y: number };
 
 type ComposerPhotoFieldProps = {
   currentPhotoUrl?: string | null;
-  required?: boolean;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -30,7 +30,7 @@ function cropPosition(position: Point, imageWidth: number, imageHeight: number, 
   };
 }
 
-export function ComposerPhotoField({ currentPhotoUrl, required = false }: ComposerPhotoFieldProps) {
+export function ComposerPhotoField({ currentPhotoUrl }: ComposerPhotoFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const cropReadyRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{ pointerId: number; start: Point; origin: Point } | null>(null);
@@ -179,9 +179,7 @@ export function ComposerPhotoField({ currentPhotoUrl, required = false }: Compos
               style={previewStyle}
             />
           ) : (
-            <div className="grid h-full place-items-center px-4 text-center text-sm text-[var(--muted-foreground)]">
-              A foto quadrada aparecerá aqui
-            </div>
+            <ComposerAvatar className="h-full w-full" name="compositor" />
           )}
         </div>
         <div className="grid min-w-52 flex-1 gap-3">
@@ -198,7 +196,6 @@ export function ComposerPhotoField({ currentPhotoUrl, required = false }: Compos
               name="photo"
               onChange={handleFileChange}
               ref={inputRef}
-              required={required && !currentPhotoUrl}
               type="file"
             />
             <input defaultValue="" name="photo_crop_ready" ref={cropReadyRef} type="hidden" />

@@ -1,8 +1,13 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ComposerPhotoField } from "@/components/forms/composer-photo-field";
 import { composerReliabilityLevels } from "@/lib/validators/composer";
+import type { ComposerSaveResult } from "@/app/admin/compositores/actions";
 
 export type ComposerFormData = {
   canonical_name?: string | null;
@@ -34,7 +39,7 @@ export type ComposerFormData = {
 };
 
 type ComposerFormProps = {
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<void | ComposerSaveResult>;
   composer?: ComposerFormData;
   submitLabel: string;
   currentPhotoUrl?: string | null;
@@ -59,8 +64,46 @@ function dateToInput(value?: string | null) {
 }
 
 export function ComposerForm({ action, composer, submitLabel, currentPhotoUrl }: ComposerFormProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<ComposerSaveResult | null>(null);
+
+  function handleEditSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+
+    const formData = new FormData(event.currentTarget);
+    const photo = formData.get("photo");
+    if (photo instanceof File && photo.size > 0 && formData.get("photo_crop_ready") !== "1") {
+      setFeedback({ ok: false, message: "Aguarde o recorte da foto terminar antes de salvar." });
+      return;
+    }
+
+    setFeedback(null);
+    startTransition(async () => {
+      try {
+        const result = await action(formData);
+        if (result) {
+          setFeedback(result);
+          if (result.ok) router.refresh();
+        }
+      } catch {
+        setFeedback({ ok: false, message: "Não foi possível salvar. Tente novamente." });
+      }
+    });
+  }
+
+  async function handleCreateSubmit(formData: FormData) {
+    await action(formData);
+  }
+
   return (
-    <form action={action} className="grid gap-6" encType="multipart/form-data">
+    <form
+      action={composer ? undefined : handleCreateSubmit}
+      className="grid gap-6"
+      encType="multipart/form-data"
+      onSubmit={composer ? handleEditSubmit : undefined}
+    >
       <Card className="grid gap-4">
         <div>
           <h2 className="text-lg font-semibold">Identificacao</h2>
@@ -112,10 +155,10 @@ export function ComposerForm({ action, composer, submitLabel, currentPhotoUrl }:
         <div>
           <h2 className="text-lg font-semibold">Foto</h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-            Todos os compositores devem ter uma foto quadrada com o mesmo enquadramento.
+            A foto é opcional. Sem foto, o avatar padrão será exibido. Se enviar uma imagem, ajuste o recorte quadrado.
           </p>
         </div>
-        <ComposerPhotoField currentPhotoUrl={currentPhotoUrl} required={!composer?.photo_path} />
+        <ComposerPhotoField currentPhotoUrl={currentPhotoUrl} />
       </Card>
 
       <Card className="grid gap-4">
@@ -233,8 +276,15 @@ export function ComposerForm({ action, composer, submitLabel, currentPhotoUrl }:
         </label>
       </Card>
 
-      <div className="flex justify-end">
-        <Button type="submit">{submitLabel}</Button>
+      <div className="grid gap-3">
+        {feedback ? (
+          <p aria-live="polite" className={`text-sm ${feedback.ok ? "text-green-800" : "text-red-700"}`} role="status">
+            {feedback.message}
+          </p>
+        ) : null}
+        <div className="flex justify-end">
+          <Button disabled={pending} type="submit">{pending ? "Salvando..." : submitLabel}</Button>
+        </div>
       </div>
     </form>
   );

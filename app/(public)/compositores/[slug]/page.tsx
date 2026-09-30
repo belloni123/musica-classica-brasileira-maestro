@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { ComposerAvatar } from "@/components/catalog/composer-avatar";
 import { createClient } from "@/lib/supabase/server";
 import { composerBirthplace } from "@/lib/catalog/composers";
 
@@ -39,14 +40,13 @@ export default async function PublicComposerPage({ params }: PageProps) {
     return (
       <div className="grid gap-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          {!withoutPhoto && composer.photo_path ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              alt={`Foto de ${composer.display_name}`}
-              className="h-36 w-36 shrink-0 rounded-xl object-cover sm:h-44 sm:w-44"
-              src={supabase.storage.from("composer-photos").getPublicUrl(composer.photo_path).data.publicUrl}
-            />
-          ) : null}
+          <ComposerAvatar
+            className="h-36 w-36 sm:h-44 sm:w-44"
+            name={composer.display_name}
+            src={!withoutPhoto && composer.photo_path
+              ? supabase.storage.from("composer-photos").getPublicUrl(composer.photo_path).data.publicUrl
+              : null}
+          />
           <div className="max-w-3xl">
             <p className="mb-3 text-sm text-[var(--accent)]">Compositor</p>
             <h1 className="text-3xl font-semibold leading-tight text-[var(--foreground-strong)] sm:text-4xl md:text-5xl">

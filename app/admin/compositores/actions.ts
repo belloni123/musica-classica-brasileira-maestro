@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ZodError } from "zod";
 import { buildComposerSlug } from "@/lib/slug";
 import { requireEditorialWriteAccess } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -11,10 +12,11 @@ const COMPOSER_PHOTO_BUCKET = "composer-photos";
 const COMPOSER_PHOTO_MAX_SIZE = 5 * 1024 * 1024;
 const COMPOSER_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-function getComposerPhotoFile(formData: FormData, required: boolean) {
+export type ComposerSaveResult = { ok: true; message: string } | { ok: false; message: string };
+
+function getComposerPhotoFile(formData: FormData) {
   const value = formData.get("photo");
   if (!value || typeof value === "string" || value.size === 0) {
-    if (required) throw new Error("Adicione uma foto quadrada para o compositor.");
     return null;
   }
 
@@ -102,8 +104,7 @@ function toComposerUpdate(values: ComposerFormValues, slug: string, actorUserId:
 
 export async function createComposer(formData: FormData) {
   const { user } = await requireEditorialWriteAccess();
-  const photoFile = getComposerPhotoFile(formData, true);
-  if (!photoFile) throw new Error("Adicione uma foto quadrada para o compositor.");
+  const photoFile = getComposerPhotoFile(formData);
   const values = parseComposerFormData(formData);
   const supabase = await createClient();
   const slug = await buildUniqueComposerSlug(supabase, values.canonical_name);
@@ -118,49 +119,63 @@ export async function createComposer(formData: FormData) {
     throw new Error(`Erro ao criar compositor: ${error?.message ?? "sem retorno"}`);
   }
 
-  const photoPath = await uploadComposerPhoto(supabase, data.id, photoFile);
-  const { error: photoUpdateError } = await supabase
-    .from("composers")
-    .update({ photo_path: photoPath, updated_by: user.id })
-    .eq("id", data.id);
+  if (photoFile) {
+    const photoPath = await uploadComposerPhoto(supabase, data.id, photoFile);
+    const { error: photoUpdateError } = await supabase
+      .from("composers")
+      .update({ photo_path: photoPath, updated_by: user.id })
+      .eq("id", data.id);
 
-  if (photoUpdateError) throw new Error(`Erro ao associar a foto ao compositor: ${photoUpdateError.message}`);
+    if (photoUpdateError) throw new Error(`Erro ao associar a foto ao compositor: ${photoUpdateError.message}`);
+  }
 
   revalidatePath("/admin/compositores");
   revalidatePath("/compositores");
   redirect(`/admin/compositores/${data.id}/editar`);
 }
 
-export async function updateComposer(composerId: string, formData: FormData) {
+export async function updateComposer(composerId: string, formData: FormData): Promise<ComposerSaveResult> {
   const { user } = await requireEditorialWriteAccess();
-  const photoFile = getComposerPhotoFile(formData, false);
-  const values = parseComposerFormData(formData);
-  const supabase = await createClient();
+  try {
+    const photoFile = getComposerPhotoFile(formData);
+    const values = parseComposerFormData(formData);
+    const supabase = await createClient();
 
-  const { data: previous, error: previousError } = await supabase.rpc("get_editorial_record", { entity: "composer", record_id: composerId });
+    const { data: previous, error: previousError } = await supabase.rpc("get_editorial_record", { entity: "composer", record_id: composerId });
 
-  if (previousError || !previous) {
-    throw new Error(`Compositor nao encontrado: ${previousError?.message ?? "sem retorno"}`);
+    if (previousError || !previous) {
+      throw new Error(`Não foi possível localizar o compositor: ${previousError?.message ?? "sem retorno"}`);
+    }
+
+    const slug = await buildUniqueComposerSlug(supabase, values.canonical_name, composerId);
+    const updatePayload = toComposerUpdate(values, slug, user.id);
+
+    if (photoFile) {
+      updatePayload.photo_path = await uploadComposerPhoto(supabase, composerId, photoFile);
+    }
+
+    const { data: saved, error } = await supabase
+      .from("composers")
+      .update(updatePayload)
+      .eq("id", composerId)
+      .select("id")
+      .maybeSingle();
+
+    if (error || !saved) {
+      throw new Error(`Não foi possível salvar o compositor: ${error?.message ?? "nenhum registro foi alterado"}`);
+    }
+
+    revalidatePath("/admin/compositores");
+    revalidatePath(`/admin/compositores/${composerId}/editar`);
+    revalidatePath("/compositores");
+    revalidatePath(`/compositores/${slug}`);
+    return { ok: true, message: "Alterações salvas com sucesso." };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return { ok: false, message: error.issues[0]?.message ?? "Revise os campos do compositor." };
+    }
+    return { ok: false, message: error instanceof Error ? error.message : "Não foi possível salvar o compositor." };
   }
-
-  const slug = await buildUniqueComposerSlug(supabase, values.canonical_name, composerId);
-  const updatePayload = toComposerUpdate(values, slug, user.id);
-
-  if (photoFile) {
-    updatePayload.photo_path = await uploadComposerPhoto(supabase, composerId, photoFile);
-  }
-
-  const { error } = await supabase.from("composers").update(updatePayload).eq("id", composerId);
-
-  if (error) {
-    throw new Error(`Erro ao atualizar compositor: ${error.message}`);
-  }
-
-  revalidatePath("/admin/compositores");
-  revalidatePath(`/admin/compositores/${composerId}/editar`);
-  revalidatePath("/compositores");
-  revalidatePath(`/compositores/${slug}`);
-  redirect(`/admin/compositores/${composerId}/editar`);
 }
 
 export async function publishComposer(composerId: string) {
@@ -168,17 +183,13 @@ export async function publishComposer(composerId: string) {
   const supabase = await createClient();
   const { data: previous, error: previousError } = await supabase
     .from("composers")
-    .select("id,publication_status,canonical_name,photo_path")
+    .select("id,publication_status,canonical_name")
     .eq("id", composerId)
     .single();
 
   if (previousError || !previous) {
     throw new Error(`Compositor nao encontrado: ${previousError?.message ?? "sem retorno"}`);
   }
-  if (!previous.photo_path) {
-    throw new Error("Adicione uma foto ao compositor antes de publicar.");
-  }
-
   const { error } = await supabase
     .from("composers")
     .update({ publication_status: "published", updated_by: user.id })
