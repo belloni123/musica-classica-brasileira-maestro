@@ -1,10 +1,13 @@
 import { z } from "zod";
-import { readCatalog } from "@/lib/integrations/catalog";
+import { activeAccount, bearer, readCatalog } from "@/lib/integrations/catalog";
 import { jsonError, publicHeaders, validate } from "@/lib/integrations/http";
 import { catalogQuery } from "@/lib/integrations/schemas";
 
+const headers = { ...publicHeaders, "Cache-Control": "private, no-store", Vary: "Authorization" };
+
 export async function GET(request: Request, context: { params: Promise<{ entity: string }> }) {
   try {
+    await activeAccount(bearer(request));
     const { entity } = await context.params;
     const params = new URL(request.url).searchParams;
     const input = validate(z.object({
@@ -13,13 +16,15 @@ export async function GET(request: Request, context: { params: Promise<{ entity:
       offset: z.coerce.number().pipe(catalogQuery.offset.unwrap()).optional(),
     }), { ...Object.fromEntries(params), entity });
     return Response.json(await readCatalog(input), {
-      headers: { ...publicHeaders, "Cache-Control": "public, max-age=0, s-maxage=30" },
+      headers,
     });
   } catch (error) {
-    return jsonError(error, publicHeaders);
+    return jsonError(error, headers);
   }
 }
 
 export function OPTIONS() {
-  return new Response(null, { status: 204, headers: { ...publicHeaders, "Access-Control-Allow-Methods": "GET, OPTIONS" } });
+  return new Response(null, { status: 204, headers: {
+    ...headers, "Access-Control-Allow-Methods": "GET, OPTIONS", "Access-Control-Allow-Headers": "Authorization",
+  } });
 }

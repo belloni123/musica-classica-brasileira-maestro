@@ -14,30 +14,39 @@ corepack pnpm install --frozen-lockfile --ignore-scripts
 
 Felipe pode habilitar a conta pessoal do Thiago como **Editor** em `/admin/usuarios`. Para alterar o software, Thiago também precisa de acesso de colaborador ao repositório. O acesso à gestão do Supabase é necessário para criar ambientes de desenvolvimento hospedados ou publicar migrações como operador.
 
-### Consultar o catálogo
+### Autenticar para consultar o catálogo
+
+Toda consulta pela API REST ou pelo MCP exige um token de acesso válido do Supabase e um perfil com `status=active`. Qualquer papel de usuário ativo pode consultar; importar continua restrito a Editor ou Administrador ativo. “Conta ativa” refere-se ao status do perfil, sem acrescentar uma exigência de assinatura paga. O login no navegador não configura o token do Claude Code automaticamente.
+
+Na raiz do clone, crie `.env.local` a partir de `.env.example` e preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` com a URL e a chave pública do projeto. A chave publicável também funciona nesse campo. Obtenha os dois valores em **Connect** no painel do Supabase.
+
+Configure a conexão na máquina em que vai rodar o Claude Code. As aspas simples preservam a referência à variável, que o Claude Code preenche durante a sessão. Se já houver uma conexão anônima com esse nome, remova-a com `claude mcp remove brasil-orquestral` antes de adicioná-la novamente.
 
 ```bash
-claude mcp add --transport http brasil-orquestral https://obras.maestrothiagosantos.com.br/api/mcp
-claude
+claude mcp add-json brasil-orquestral '{"type":"http","url":"https://obras.maestrothiagosantos.com.br/api/mcp","headers":{"Authorization":"Bearer ${BRASIL_ORQUESTRAL_ACCESS_TOKEN}"}}'
 ```
+
+A cada sessão, execute na raiz do clone, em um terminal interativo macOS ou Linux:
+
+```bash
+BRASIL_ORQUESTRAL_ACCESS_TOKEN="$(node scripts/import/token-editorial.mjs --read-only)" && \
+  BRASIL_ORQUESTRAL_ACCESS_TOKEN="$BRASIL_ORQUESTRAL_ACCESS_TOKEN" claude
+unset BRASIL_ORQUESTRAL_ACCESS_TOKEN
+```
+
+O script pede e-mail e senha com a senha oculta e entrega um token com validade limitada. Quando o token expirar, feche o Claude Code e repita o login. Mantenha senha, token, chaves de serviço e arquivos de trabalho privados fora do chat e do Git. O argumento `--read-only` permite obter o token de qualquer conta ativa; ele não altera nem reduz as permissões reais da conta.
 
 Dentro do Claude Code, veja a conexão em `/mcp`. Exemplo de pedido:
 
 > Consulte o Brasil Orquestral por Villa-Lobos. Mostre os nomes, títulos e slugs encontrados e informe a paginação.
 
-O mesmo catálogo está disponível via [API REST](https://obras.maestrothiagosantos.com.br/integracoes). A consulta pública cobre compositores, maestros e obras publicados.
+O mesmo catálogo está disponível via [API REST](https://obras.maestrothiagosantos.com.br/integracoes). Envie `Authorization: Bearer <token>` em cada requisição, inclusive `GET /api/v1/catalog/works?limit=5`. A consulta continua limitada aos campos públicos de compositores, maestros e obras publicados; não libera rascunhos, notas editoriais ou campos exclusivos de assinantes.
+
+Sem token, ou com token inválido/expirado, a integração responde `401`. Perfil ausente ou conta inativa retorna `403`. O status é conferido a cada requisição, inclusive no MCP; desativar a conta bloqueia novas chamadas mesmo antes de o token expirar. As respostas de consulta não usam cache público. A documentação e o contrato OpenAPI continuam disponíveis sem login.
 
 ### Habilitar importação editorial
 
-Na raiz do clone, crie `.env.local` a partir de `.env.example` e preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` com a URL e a chave pública do projeto. A chave publicável também funciona nesse campo. Obtenha os dois valores em **Connect** no painel do Supabase. Use a conta de Editor do Thiago para o comando a seguir.
-
-Configure a conexão editorial na máquina em que vai rodar o Claude Code. As aspas simples preservam a referência à variável, que o Claude Code preenche durante a sessão.
-
-```bash
-claude mcp add-json brasil-orquestral-editorial '{"type":"http","url":"https://obras.maestrothiagosantos.com.br/api/mcp","headers":{"Authorization":"Bearer ${BRASIL_ORQUESTRAL_ACCESS_TOKEN}"}}'
-```
-
-A cada sessão editorial, execute na raiz do clone, em um terminal interativo macOS ou Linux:
+Use a mesma conexão MCP com a conta ativa de Editor ou Administrador. Para conferir a permissão editorial ao obter o token, execute o comando anterior sem `--read-only`:
 
 ```bash
 BRASIL_ORQUESTRAL_ACCESS_TOKEN="$(node scripts/import/token-editorial.mjs)" && \
@@ -45,7 +54,7 @@ BRASIL_ORQUESTRAL_ACCESS_TOKEN="$(node scripts/import/token-editorial.mjs)" && \
 unset BRASIL_ORQUESTRAL_ACCESS_TOKEN
 ```
 
-O script pede e-mail e senha com a senha oculta e entrega um token com validade limitada ao processo. Quando o token expirar, feche o Claude Code e repita o login. Mantenha senha, token, chaves de serviço e arquivos de trabalho privados fora do chat e do Git.
+As ferramentas `prever_importacao` e `aplicar_importacao` aparecem somente para Editor ou Administrador ativo. Uma conta ativa sem esse papel pode usar `consultar_catalogo`, mas não importar.
 
 ## 2. Importar da planilha
 

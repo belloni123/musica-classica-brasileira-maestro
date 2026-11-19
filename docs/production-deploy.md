@@ -64,4 +64,4 @@ Depois de definir as variaveis, rodar `Redeploy` no Coolify.
 4. Confirmar redirecionamento para `/admin/dashboard`.
 5. Criar um assinante em `/admin/usuarios`.
 6. Fazer login com o assinante e confirmar acesso a `/minha-conta` e ao catalogo publicado.
-7. Conferir `/maestros`, `/integracoes`, `/api/v1/catalog/works` e a conexão MCP em `/api/mcp`. Para validar o acesso editorial, use a prévia com a conta de Editor e confira que as linhas permaneceram sem alteração. [Guia do Claude Code](claude-code.md)
+7. Conferir `/maestros` e `/integracoes`. Em `/api/v1/catalog/works` e no POST de `/api/mcp`, conferir `401` sem token, `403` com conta inativa e consulta bem-sucedida com `Authorization: Bearer` de uma conta ativa. Para validar o acesso editorial, use a prévia com a conta de Editor e confira que as linhas permaneceram sem alteração. [Guia do Claude Code](claude-code.md)

@@ -40,7 +40,8 @@ export function GET() {
       "/api/v1/catalog/{entity}": {
         get: {
           operationId: "consultarCatalogo",
-          summary: "Consulta pública de registros publicados",
+          summary: "Consulta de registros publicados com login e conta ativa",
+          security: [{ accountToken: [] }],
           parameters: [
             { name: "entity", in: "path", required: true, schema: entity },
             { name: "q", in: "query", schema: { type: "string", maxLength: 100 } },
@@ -53,7 +54,9 @@ export function GET() {
               entity, data: { type: "array", items: { type: "object", required: ["slug"], properties: { slug } } }, total: { type: "integer" },
               limit: { type: "integer" }, offset: { type: "integer" },
             } }),
-            400: error("Parâmetros inválidos"), 503: error("Catálogo temporariamente indisponível"),
+            400: error("Parâmetros inválidos"), 401: error("Sessão ausente, inválida ou expirada"),
+            403: error("Conta inativa ou perfil ausente"), 429: error("Limite temporário de autenticação"),
+            503: error("Serviço temporariamente indisponível"),
           },
         },
       },
@@ -82,6 +85,15 @@ export function GET() {
         },
       },
     },
-    components: { securitySchemes: { editorialToken: { type: "http", scheme: "bearer", bearerFormat: "JWT" } } },
+    components: { securitySchemes: {
+      accountToken: {
+        type: "http", scheme: "bearer", bearerFormat: "JWT",
+        description: "Token de acesso do Supabase de usuário com perfil ativo. Qualquer papel pode consultar.",
+      },
+      editorialToken: {
+        type: "http", scheme: "bearer", bearerFormat: "JWT",
+        description: "Token de acesso do Supabase de Editor ou Administrador com perfil ativo.",
+      },
+    } },
   }, { headers: publicHeaders });
 }

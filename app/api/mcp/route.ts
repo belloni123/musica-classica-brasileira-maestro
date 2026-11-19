@@ -1,11 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { bearer, editorialClient, importCatalog, readCatalog } from "@/lib/integrations/catalog";
+import { activeAccount, bearer, editorialClient, importCatalog, readCatalog } from "@/lib/integrations/catalog";
 import { ApiError, readJson, validate } from "@/lib/integrations/http";
 import { batchInput, catalogQuery, importRequest, planField } from "@/lib/integrations/schemas";
 
+const headers = { "Cache-Control": "private, no-store", Vary: "Authorization" };
+
 function mcpError(status: number, code: number, message: string) {
-  return Response.json({ jsonrpc: "2.0", error: { code, message }, id: null }, { status });
+  return Response.json({ jsonrpc: "2.0", error: { code, message }, id: null }, { status, headers });
 }
 
 async function toolResult(execute: () => Promise<unknown>) {
@@ -25,6 +27,14 @@ export async function POST(request: Request) {
   const expectedOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? request.url).origin;
   if (origin && origin !== expectedOrigin) return mcpError(403, -32000, "Origem rejeitada.");
 
+  let account: Awaited<ReturnType<typeof activeAccount>>;
+  try {
+    account = await activeAccount(bearer(request));
+  } catch (error) {
+    const failure = error instanceof ApiError ? error : new ApiError(503, "Autenticação temporariamente indisponível.");
+    return mcpError(failure.status, -32000, failure.message);
+  }
+
   let body: unknown;
   try {
     body = await readJson(request);
@@ -35,12 +45,12 @@ export async function POST(request: Request) {
 
   const server = new McpServer({ name: "brasil-orquestral", version: "1.0.0" });
   server.registerTool("consultar_catalogo", {
-    description: "Pesquisa obras, compositores e maestros publicados no Brasil Orquestral.",
+    description: "Pesquisa obras, compositores e maestros publicados no Brasil Orquestral. Requer login e conta ativa.",
     inputSchema: catalogQuery,
     annotations: { readOnlyHint: true, openWorldHint: false },
   }, (input) => toolResult(() => readCatalog(input)));
 
-  if (request.headers.has("authorization")) {
+  if (["editor", "admin"].includes(account.profile.role)) {
     server.registerTool("prever_importacao", {
       description: "Valida um lote editorial de até 100 linhas. Retorna o plano e reverte todas as escritas da simulação.",
       inputSchema: batchInput,
@@ -61,7 +71,9 @@ export async function POST(request: Request) {
   const transport = new WebStandardStreamableHTTPServerTransport({ enableJsonResponse: true });
   try {
     await server.connect(transport);
-    return await transport.handleRequest(request, { parsedBody: body });
+    const response = await transport.handleRequest(request, { parsedBody: body });
+    for (const [name, value] of Object.entries(headers)) response.headers.set(name, value);
+    return response;
   } finally {
     await server.close();
   }

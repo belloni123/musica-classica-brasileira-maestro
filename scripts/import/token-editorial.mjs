@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { createClient } from "@supabase/supabase-js";
 
 async function main() {
+  const readOnly = process.argv.includes("--read-only");
   try {
     process.loadEnvFile(".env.local");
   } catch (error) {
@@ -18,7 +19,7 @@ async function main() {
   const prompt = [
     "import getpass, json, sys",
     "with open('/dev/tty', 'r') as terminal_input, open('/dev/tty', 'w') as terminal_output:",
-    "    terminal_output.write('E-mail editorial: '); terminal_output.flush()",
+    "    terminal_output.write('E-mail: '); terminal_output.flush()",
     "    email = terminal_input.readline().strip()",
     "    password = getpass.getpass('Senha: ', stream=terminal_output)",
     "json.dump({'email': email, 'password': password}, sys.stdout)",
@@ -26,12 +27,13 @@ async function main() {
   const credentials = JSON.parse(execFileSync("python3", ["-c", prompt], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] }));
   const db = createClient(url.href, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await db.auth.signInWithPassword(credentials);
-  if (error || !data.session) throw new Error("Login recusado. Confira a conta de editor e a URL do projeto.");
+  if (error || !data.session) throw new Error("Login recusado. Confira a conta e a URL do projeto.");
   const { data: profile } = await db.from("profiles").select("role,status").eq("id", data.user.id).maybeSingle();
-  if (profile?.status !== "active" || !["editor", "admin"].includes(profile.role)) {
-    throw new Error("A conta precisa estar ativa com o papel editor ou admin.");
+  if (profile?.status !== "active") throw new Error("A conta precisa estar ativa.");
+  if (!readOnly && !["editor", "admin"].includes(profile.role)) {
+    throw new Error("A importação requer editor ou admin. Para consultar, use --read-only.");
   }
-  process.stderr.write(`Token editorial válido até ${new Date(data.session.expires_at * 1000).toLocaleString("pt-BR")}\n`);
+  process.stderr.write(`Token de acesso válido até ${new Date(data.session.expires_at * 1000).toLocaleString("pt-BR")}\n`);
   process.stdout.write(data.session.access_token);
 }
 

@@ -53,7 +53,7 @@ export function bearer(request: Request) {
   return token;
 }
 
-export async function editorialClient(token: string) {
+export async function activeAccount(token: string) {
   const db = integrationClient(token);
   const { data: { user }, error } = await db.auth.getUser(token);
   if (error || !user) {
@@ -64,8 +64,16 @@ export async function editorialClient(token: string) {
 
   const { data: profile, error: profileError } = await db.from("profiles")
     .select("role,status").eq("id", user.id).maybeSingle();
-  if (profileError) throw new ApiError(503, "Não foi possível verificar a permissão editorial.");
-  if (profile?.status !== "active" || !["editor", "admin"].includes(profile.role)) {
+  if (profileError) throw new ApiError(503, "Não foi possível verificar o status da conta.");
+  if (profile?.status !== "active") {
+    throw new ApiError(403, "O acesso à API e ao MCP requer uma conta ativa.");
+  }
+  return { db, profile };
+}
+
+export async function editorialClient(token: string) {
+  const { db, profile } = await activeAccount(token);
+  if (!["editor", "admin"].includes(profile.role)) {
     throw new ApiError(403, "A importação requer uma conta ativa de editor ou administrador.");
   }
   return db;
