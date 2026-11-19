@@ -12,10 +12,11 @@ const compat = new FlatCompat({
 const eslintConfig = [
   {
     ignores: [
-      ".next/**",
+      "**/.next/**",
       ".vercel/**",
       ".pnpm-store/**",
       "node_modules/**",
+      "**/._*",
       "next-env.d.ts",
       "pnpm-lock.yaml",
     ],

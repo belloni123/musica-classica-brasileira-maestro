@@ -8,3 +8,6 @@ npm-debug.log*
 .git
 .vercel
 .pnpm-store
+
+._*
+**/._*

@@ -1,33 +1,5 @@
-# Preparacao para importacao
+# Importação editorial
 
-Importacao real de CSV/XLSX ainda nao foi implementada. A fundacao contem tabelas de controle e uma tela administrativa de leitura.
+O catálogo recebe lotes de compositores, maestros e obras via API REST ou MCP. O editor pode preparar os lotes a partir de uma planilha CSV. A prévia valida as linhas e reverte as escritas. A aplicação usa o plano da prévia e registra o lote em `import_batches` e as linhas em `import_rows`.
 
-## Tabelas existentes
-
-- `import_batches`
-- `import_rows`
-
-## Painel existente
-
-`/admin/importacao` lista lotes ja existentes, se houver.
-
-## Fluxo futuro recomendado
-
-1. Upload do arquivo.
-2. Criacao de `import_batches`.
-3. Leitura do arquivo no servidor.
-4. Criacao de `import_rows` com `raw_json`.
-5. Validacao por entidade.
-6. Normalizacao para `normalized_json`.
-7. Tela de revisao dos erros e avisos.
-8. Confirmacao manual de importacao.
-9. Criacao ou atualizacao dos registros definitivos.
-10. Registro em `revision_history` e `audit_logs`.
-
-## Decisoes pendentes
-
-- Formato de template CSV/XLSX por entidade.
-- Estrategia de deduplicacao.
-- Regras de merge.
-- Campos obrigatorios por entidade.
-- Limite de tamanho de arquivo.
+Consulte o [guia do Claude Code](claude-code.md#2-importar-da-planilha) e o [contrato OpenAPI](https://obras.maestrothiagosantos.com.br/api/v1/openapi.json). O painel `/admin/importacao` acompanha os lotes aplicados.

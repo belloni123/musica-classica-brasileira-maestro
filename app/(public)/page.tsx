@@ -1,44 +1,44 @@
+import Image from "next/image";
 import Link from "next/link";
-import { LogIn, Search } from "lucide-react";
+import { ArrowUpRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   return (
-    <div className="lg:flex lg:flex-1">
-      <section className="w-full py-8 lg:flex lg:items-center lg:justify-center lg:py-20">
-        <div className="mx-auto max-w-5xl lg:text-center">
-          <h1 className="text-4xl font-semibold leading-none text-[var(--foreground-strong)] sm:text-5xl lg:text-7xl lg:leading-[1.04] xl:text-[5rem]">
-            Brasil Orquestral
-            <sup
-              aria-label="marca registrada"
-              className="ml-1 align-super text-[0.42em] font-semibold leading-none text-[var(--foreground-strong)]"
-            >
-              ®
-            </sup>
-          </h1>
-          <h2 className="mt-5 max-w-4xl text-2xl font-normal leading-tight text-[var(--foreground-strong)] sm:text-3xl lg:mx-auto lg:mt-7 lg:text-4xl">
-            Guia de referência do repertório brasileiro para orquestra.
-          </h2>
-          <p className="mt-5 max-w-4xl text-lg leading-8 text-[var(--muted-foreground)] sm:text-xl lg:mx-auto lg:mt-7 lg:text-2xl lg:leading-9">
-            Um catálogo para encontrar compositores, obras, formações, duração, instrumentação,
-            fontes e caminhos de programação em uma plataforma de acesso especializado.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:mt-10 lg:justify-center lg:gap-4">
-            <Button asChild className="w-full sm:w-auto lg:h-14 lg:px-8 lg:text-lg" size="lg">
-              <Link href="/buscar">
-                <Search className="shrink-0" size={20} aria-hidden="true" />
-                Pesquisa simples
-              </Link>
-            </Button>
-            <Button asChild className="w-full sm:w-auto lg:h-14 lg:px-8 lg:text-lg" size="lg" variant="secondary">
-              <Link href="/busca-avancada">
-                <LogIn size={20} aria-hidden="true" />
-                Pesquisa avançada
-              </Link>
-            </Button>
-          </div>
+    <section className="grid flex-1 items-center bg-[var(--navy)] text-[var(--ivory)] lg:grid-cols-[1fr_0.8fr]">
+      <div className="px-6 pt-10 pb-5 sm:px-10 sm:pt-14 lg:px-14 lg:py-16 xl:px-20">
+        <h1 className="text-[clamp(2.25rem,4.7vw,4.4rem)] leading-[1.07] font-normal text-balance">
+          O repertório brasileiro para orquestra
+        </h1>
+        <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--ivory)] sm:text-lg">
+          Um guia para pesquisar compositores, obras, formações, duração, instrumentação e fontes para sua programação.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button asChild className="border-[var(--gold)] bg-[var(--gold)] !text-[var(--navy)] [&_*]:!text-[var(--navy)] [&_svg]:!stroke-[var(--navy)]" size="lg">
+            <Link href="/buscar">
+              <Search size={17} aria-hidden="true" />
+              Pesquisa simples
+            </Link>
+          </Button>
+          <Button asChild className="border-white/40 text-[var(--ivory)] hover:bg-white/10" size="lg" variant="secondary">
+            <Link href="/busca-avancada">
+              Pesquisa avançada
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
-      </section>
-    </div>
+      </div>
+      <div className="flex justify-center px-6 pt-2 pb-7 sm:pb-10 lg:p-10">
+        <Image
+          alt="Brasil Orquestral"
+          className="h-auto w-[min(55vw,190px)] lg:w-full lg:max-w-[390px]"
+          height={440}
+          src="/marca/assinatura-escuro.svg"
+          width={393}
+          priority
+          unoptimized
+        />
+      </div>
+    </section>
   );
 }

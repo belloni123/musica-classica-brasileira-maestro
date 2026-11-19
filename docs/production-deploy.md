@@ -7,11 +7,7 @@ Projeto: `Brasil Orquestral`
 ## Supabase
 
 1. Criar um projeto Supabase Cloud.
-2. Em `SQL Editor`, aplicar nesta ordem:
-   - `sql/migrations/0001_initial_foundation.sql`
-   - `sql/migrations/0002_instrument_active.sql`
-   - `sql/migrations/0003_subscription_foundation.sql`
-   - `sql/seeds/0001_foundation_seeds.sql`
+2. Em um projeto novo, aplicar todos os arquivos de `sql/migrations/` em ordem de nome e depois `sql/seeds/0001_foundation_seeds.sql`. A migração `20261119183823_catalog_api_import.sql` habilita o diretório de maestros e a importação editorial. Em um ambiente existente, aplique somente migrações pendentes depois de conferir o histórico do Supabase.
 3. Em `Authentication > Users`, criar o usuario:
    - email: `felipe@agenciab16.com.br`
    - senha: usar a senha definida pelo operador do projeto.
@@ -68,3 +64,4 @@ Depois de definir as variaveis, rodar `Redeploy` no Coolify.
 4. Confirmar redirecionamento para `/admin/dashboard`.
 5. Criar um assinante em `/admin/usuarios`.
 6. Fazer login com o assinante e confirmar acesso a `/minha-conta` e ao catalogo publicado.
+7. Conferir `/maestros`, `/integracoes`, `/api/v1/catalog/works` e a conexão MCP em `/api/mcp`. Para validar o acesso editorial, use a prévia com a conta de Editor e confira que as linhas permaneceram sem alteração. [Guia do Claude Code](claude-code.md)

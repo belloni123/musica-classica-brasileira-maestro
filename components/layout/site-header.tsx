@@ -1,12 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/session";
-import { ChevronDown, LibraryBig, LogIn, Menu } from "lucide-react";
+import { ChevronDown, LogIn, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const publicLinks = [
   { href: "/buscar", label: "Pesquisa simples" },
   { href: "/busca-avancada", label: "Pesquisa avançada" },
   { href: "/compositores", label: "Compositores" },
+  { href: "/maestros", label: "Maestros" },
 ];
 
 const resourceLinks = [
@@ -21,17 +23,17 @@ export async function SiteHeader() {
   const user = await getCurrentUser();
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface-strong)]">
-      <div className="mx-auto flex min-h-[72px] w-full max-w-7xl items-center justify-between gap-6 px-5 md:px-8">
-        <Link className="flex min-w-0 items-center gap-3 text-sm font-semibold md:text-base" href="/">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[var(--catalog-blue)] text-white shadow-[var(--button-inset)]">
-            <LibraryBig size={17} aria-hidden="true" />
-          </span>
-          <span className="grid leading-tight">
-            <span className="whitespace-nowrap text-[var(--catalog-blue)]">Brasil Orquestral</span>
-            <span className="hidden whitespace-nowrap text-xs font-normal text-[var(--catalog-blue)] xl:inline">
-              ferramenta de busca de repertório brasileiro
-            </span>
-          </span>
+      <div className="mx-auto flex min-h-[78px] w-full max-w-7xl items-center justify-between gap-3 px-5 md:gap-6 md:px-8">
+        <Link className="flex h-[78px] w-[174px] shrink-0 items-center" href="/">
+          <Image
+            alt="Brasil Orquestral"
+            className="h-auto w-full"
+            height={113}
+            src="/marca/horizontal-claro.svg"
+            width={174}
+            unoptimized
+            priority
+          />
         </Link>
         <nav className="hidden self-stretch xl:flex" aria-label="Navegação pública">
           {publicLinks.map((link) => (
@@ -64,7 +66,7 @@ export async function SiteHeader() {
             </div>
           </div>
           <Link
-            className="my-auto flex h-10 items-center rounded-md border border-[var(--border-strong)] bg-[var(--accent)] px-4 text-xs font-semibold uppercase tracking-normal text-[var(--foreground-strong)] shadow-[var(--button-inset)] transition-colors hover:bg-[var(--nav-active)]"
+            className="my-auto flex h-10 items-center rounded-md border border-[var(--border-strong)] bg-[var(--gold)] px-4 text-xs font-semibold uppercase tracking-normal text-[var(--foreground-strong)] shadow-[var(--button-inset)] transition-colors hover:bg-[var(--nav-active)]"
             href="/planos"
           >
             Assinar
@@ -82,7 +84,7 @@ export async function SiteHeader() {
               <Menu size={22} aria-hidden="true" />
               <span className="sr-only">Abrir menu</span>
             </summary>
-            <div className="absolute right-0 top-12 w-72 border border-[var(--border)] bg-[var(--surface-strong)] p-2 shadow-lg">
+            <div className="absolute right-0 top-12 w-[min(18rem,calc(100vw-2.5rem))] border border-[var(--border)] bg-[var(--surface-strong)] p-2 shadow-lg">
               {[...publicLinks, { href: "/recursos", label: "Recursos" }, { href: "/planos", label: "Assinar" }].map(
                 (link) => (
                   <Link className="block px-3 py-3 text-sm font-medium" href={link.href} key={link.href}>

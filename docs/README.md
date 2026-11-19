@@ -4,6 +4,8 @@ Este diretorio concentra a documentacao tecnica e operacional da plataforma.
 
 ## Leitura principal
 
+- [Operação do catálogo e desenvolvimento com Claude Code](claude-code.md).
+
 - `project-status.md`: estado atual do produto e limites conhecidos.
 - `security.md`: postura de seguranca, controles implementados e checklist de producao.
 - `manual-pending-setup.md`: itens que dependem de configuracao manual em servicos externos.
@@ -21,7 +23,7 @@ Este diretorio concentra a documentacao tecnica e operacional da plataforma.
 - `source-holder-crud.md`: detentores/fontes.
 - `reference-crud.md`: referencias bibliograficas.
 - `taxonomy-crud.md`: taxonomias.
-- `import-prep.md`: preparacao para importacao.
+- `import-prep.md`: importacao editorial.
 - `billing-prep.md`: preparacao para assinatura.
 - `daniels-orchestral-audit.md`: auditoria de referencia do Daniels' Orchestral Music Online.
 - `meilisearch-prep.md`: preparacao para busca dedicada.
