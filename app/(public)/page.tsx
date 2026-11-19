@@ -1,44 +1,78 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Search } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const archiveSource =
+  "https://commons.wikimedia.org/wiki/File:Orquestra_sinf%C3%B4nica_no_Campo_de_S%C3%A3o_Crist%C3%B3v%C3%A3o.jpg";
+
+const catalogLinks = [
+  { href: "/obras", title: "Obras", description: "Títulos, formações e duração" },
+  { href: "/compositores", title: "Compositores", description: "Biografias e repertório" },
+  { href: "/maestros", title: "Maestros", description: "Perfis de regentes" },
+];
 
 export default function HomePage() {
   return (
-    <section className="grid flex-1 items-center bg-[var(--navy)] text-[var(--ivory)] lg:grid-cols-[1fr_0.8fr]">
-      <div className="px-6 pt-10 pb-5 sm:px-10 sm:pt-14 lg:px-14 lg:py-16 xl:px-20">
-        <h1 className="text-[clamp(2.25rem,4.7vw,4.4rem)] leading-[1.07] font-normal text-balance">
-          O repertório brasileiro para orquestra
-        </h1>
-        <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--ivory)] sm:text-lg">
-          Um guia para pesquisar compositores, obras, formações, duração, instrumentação e fontes para sua programação.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild className="border-[var(--gold)] bg-[var(--gold)] !text-[var(--navy)] [&_*]:!text-[var(--navy)] [&_svg]:!stroke-[var(--navy)]" size="lg">
-            <Link href="/buscar">
-              <Search size={17} aria-hidden="true" />
-              Pesquisa simples
-            </Link>
-          </Button>
-          <Button asChild className="border-white/40 text-[var(--ivory)] hover:bg-white/10" size="lg" variant="secondary">
-            <Link href="/busca-avancada">
+    <div className="grid gap-9 pb-2 sm:gap-12">
+      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:gap-12 xl:gap-16">
+        <div className="lg:pb-8">
+          <h1 className="max-w-[11ch] text-[clamp(2.6rem,5vw,4.6rem)] leading-[1.02] font-normal tracking-[-0.04em]">
+            A música brasileira <span className="whitespace-nowrap">de concerto</span>
+          </h1>
+          <p className="mt-5 max-w-[37ch] text-[1.0625rem] leading-relaxed text-[var(--muted-foreground)] sm:mt-6 sm:text-lg">
+            Explore o repertório orquestral brasileiro. Consulte formações, instrumentação e fontes
+            para planejar seu próximo concerto.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 sm:mt-8">
+            <Button asChild className="rounded-sm" size="lg">
+              <Link href="/buscar">
+                <Search size={16} aria-hidden="true" />
+                Pesquisar repertório
+              </Link>
+            </Button>
+            <Link
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-medium underline decoration-[var(--border-strong)] underline-offset-4 hover:decoration-current"
+              href="/busca-avancada"
+            >
               Pesquisa avançada
-              <ArrowUpRight size={17} aria-hidden="true" />
+              <ArrowUpRight size={15} aria-hidden="true" />
             </Link>
-          </Button>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-center px-6 pt-2 pb-7 sm:pb-10 lg:p-10">
-        <Image
-          alt="Brasil Orquestral"
-          className="h-auto w-[min(55vw,190px)] lg:w-full lg:max-w-[390px]"
-          height={440}
-          src="/marca/assinatura-escuro.svg"
-          width={393}
-          priority
-          unoptimized
-        />
-      </div>
-    </section>
+
+        <figure className="min-w-0">
+          <Image
+            alt="Maestro e músicos da Orquestra Sinfônica Brasileira durante um concerto ao ar livre, diante de uma multidão."
+            className="h-auto w-full bg-[var(--ivory)]"
+            height={1156}
+            priority
+            sizes="(min-width: 1280px) 704px, (min-width: 1024px) 58vw, calc(100vw - 40px)"
+            src="/catalogo/orquestra-sinfonica-brasileira-1952.webp"
+            width={1600}
+          />
+          <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[var(--border)] py-2.5 text-xs leading-relaxed text-[var(--muted-foreground)] sm:text-sm">
+            <span>Orquestra Sinfônica Brasileira · Rio de Janeiro, 1952</span>
+            <a className="!underline underline-offset-4" href={archiveSource}>Arquivo Nacional</a>
+          </figcaption>
+        </figure>
+      </section>
+
+      <nav aria-label="Explorar o catálogo" className="grid border-y border-[var(--border-strong)] sm:grid-cols-3">
+        {catalogLinks.map(({ href, title, description }) => (
+          <Link
+            className="group flex min-w-0 items-center justify-between gap-3 border-b border-[var(--border)] px-3 py-4 transition-colors last:border-b-0 hover:bg-[var(--muted)] sm:border-r sm:border-b-0 sm:px-5 sm:py-5 sm:last:border-r-0"
+            href={href}
+            key={href}
+          >
+            <span className="grid gap-1">
+              <span className="font-serif text-[1.65rem] leading-tight">{title}</span>
+              <span className="text-sm text-[var(--muted-foreground)]">{description}</span>
+            </span>
+            <ArrowRight aria-hidden="true" className="shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" size={19} />
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }

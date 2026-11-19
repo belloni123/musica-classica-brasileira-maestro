@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth/session";
 import { ChevronDown, LogIn, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,17 +22,9 @@ export async function SiteHeader() {
   const user = await getCurrentUser();
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface-strong)]">
-      <div className="mx-auto flex min-h-[78px] w-full max-w-7xl items-center justify-between gap-3 px-5 md:gap-6 md:px-8">
-        <Link className="flex h-[78px] w-[174px] shrink-0 items-center" href="/">
-          <Image
-            alt="Brasil Orquestral"
-            className="h-auto w-full"
-            height={113}
-            src="/marca/horizontal-claro.svg"
-            width={174}
-            unoptimized
-            priority
-          />
+      <div className="mx-auto flex min-h-[66px] w-full max-w-7xl items-center justify-between gap-3 px-5 md:gap-6 md:px-8">
+        <Link className="shrink-0 font-serif text-[1.4rem] leading-none tracking-tight whitespace-nowrap sm:text-2xl" href="/">
+          Brasil Orquestral
         </Link>
         <nav className="hidden self-stretch xl:flex" aria-label="Navegação pública">
           {publicLinks.map((link) => (
