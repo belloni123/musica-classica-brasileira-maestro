@@ -42,15 +42,23 @@ export default function HomePage() {
         </div>
 
         <figure className="min-w-0">
-          <Image
-            alt="Maestro e músicos da Orquestra Sinfônica Brasileira durante um concerto ao ar livre, diante de uma multidão."
-            className="h-auto w-full bg-[var(--ivory)]"
-            height={1156}
-            priority
-            sizes="(min-width: 1280px) 704px, (min-width: 1024px) 58vw, calc(100vw - 40px)"
-            src="/catalogo/orquestra-sinfonica-brasileira-1952.webp"
-            width={1600}
-          />
+          <picture>
+            <source
+              sizes="(min-width: 1280px) 704px, (min-width: 1024px) 58vw, (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"
+              srcSet="/catalogo/orquestra-sinfonica-brasileira-1952-800.webp 800w, /catalogo/orquestra-sinfonica-brasileira-1952.webp 1600w"
+              type="image/webp"
+            />
+            <Image
+              alt="Maestro e músicos da Orquestra Sinfônica Brasileira durante um concerto ao ar livre, diante de uma multidão."
+              className="h-auto w-full bg-[var(--ivory)]"
+              fetchPriority="high"
+              height={1156}
+              loading="eager"
+              src="/catalogo/orquestra-sinfonica-brasileira-1952.webp"
+              unoptimized
+              width={1600}
+            />
+          </picture>
           <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[var(--border)] py-2.5 text-xs leading-relaxed text-[var(--muted-foreground)] sm:text-sm">
             <span>Orquestra Sinfônica Brasileira · Rio de Janeiro, 1952</span>
             <a className="!underline underline-offset-4" href={archiveSource}>Arquivo Nacional</a>
