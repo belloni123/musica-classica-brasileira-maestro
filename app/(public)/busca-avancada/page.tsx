@@ -9,7 +9,6 @@ import { createClient } from "@/lib/supabase/server";
 import { hasInstrumentationCriteria, instrumentationCriteria, orchestralInstruments } from "@/lib/catalog/instrumentation";
 import { brazilianStates } from "@/lib/catalog/composers";
 import { brazilianRegions, orchestraTypes, compositionYearLabel } from "@/lib/catalog/options";
-import { findInstrumentationMatches } from "@/lib/search/instrumentation";
 
 import { PrintButton } from "@/components/ui/print-button";
 import { SearchPagination } from "@/components/ui/search-pagination";
@@ -58,15 +57,6 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     validateSearchRanges(params);
     const quantities = instrumentationCriteria(params);
     const supabase = await createClient();
-    let request = supabase
-      .from("works")
-      .select(
-        "id,display_title,slug,composition_year_start,composition_year_end,duration_minutes,formation_type,public_summary,composers!inner(display_name)",
-      )
-      .eq("publication_status", "published")
-      .order("display_title", { ascending: true })
-      .range((pageNumber(params.pagina) - 1) * RESULT_LIMIT, pageNumber(params.pagina) * RESULT_LIMIT);
-
     const title = cleanText(params.titulo);
     const compositionFrom = cleanNumber(params.composicao_de);
     const compositionTo = cleanNumber(params.composicao_ate);
@@ -76,6 +66,27 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     const instrumentation = cleanText(params.instrumentacao);
     const instrumentalSolo = cleanText(params.solista_instrumental);
     const vocalSolo = cleanText(params.solista_vocal);
+
+    const filtersInstrumentation = hasInstrumentationCriteria(quantities) ||
+      Boolean(instrumentation || instrumentalSolo || vocalSolo);
+    const source = filtersInstrumentation
+      ? supabase.rpc("search_catalog_instrumentation", {
+          quantities: quantities.quantities,
+          require_timpani: quantities.timpani,
+          require_strings: quantities.strings,
+          instrument_query: instrumentation,
+          solo_query: instrumentalSolo,
+          voice_query: vocalSolo,
+        })
+      : supabase.from("works");
+    let request = source
+      .select(
+        "id,display_title,slug,composition_year_start,composition_year_end,duration_minutes,formation_type,public_summary,composers!inner(display_name)",
+      )
+      .eq("publication_status", "published")
+      .order("display_title", { ascending: true })
+      .order("id", { ascending: true })
+      .range((pageNumber(params.pagina) - 1) * RESULT_LIMIT, pageNumber(params.pagina) * RESULT_LIMIT);
 
     const composer = cleanText(params.compositor);
     const nationality = cleanText(params.nacionalidade);
@@ -101,22 +112,6 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     if (durationFrom !== null) request = request.gte("duration_minutes", durationFrom);
     if (durationTo !== null) request = request.lte("duration_minutes", durationTo);
     if (orchestraTypes.some(type => type === formation)) request = request.eq("formation_type", formation);
-    if (instrumentation || instrumentalSolo || vocalSolo) {
-      const { data, error } = await supabase.rpc("find_catalog_work_ids", {
-        instrument_query: instrumentation, solo_query: instrumentalSolo, voice_query: vocalSolo,
-      });
-      if (error) throw new Error(error.code === "42501"
-        ? "Entre com uma conta com acesso ao catálogo para pesquisar instrumentação detalhada."
-        : "Não foi possível consultar a instrumentação. Tente novamente.");
-      const ids = (data ?? []) as string[];
-      if (ids.length === 0) return { works: [] as WorkResult[], error: null };
-      request = request.in("id", ids);
-    }
-    if (hasInstrumentationCriteria(quantities)) {
-      const ids = await findInstrumentationMatches(quantities);
-      if (!ids.length) return { works: [] as WorkResult[], error: null };
-      request = request.in("id", ids);
-    }
     if (isChecked(params.coro)) request = request.eq("has_choir", true);
     if (isChecked(params.sem_coro)) request = request.eq("has_choir", false);
     if (isChecked(params.solista)) request = request.eq("has_soloist", true);
@@ -124,7 +119,13 @@ async function runAdvancedSearch(params: Record<string, string | undefined>) {
     if (isChecked(params.orquestra_jovem)) request = request.eq("youth_work", true);
 
     const { data, error } = await request;
-    if (error) throw error;
+    if (error) {
+      if (filtersInstrumentation && error.code === "42501") {
+        throw new Error("Entre com uma conta com acesso ao catálogo para pesquisar instrumentação detalhada.");
+      }
+      if (filtersInstrumentation) throw new Error("Não foi possível consultar a instrumentação. Tente novamente.");
+      throw error;
+    }
 
     return { works: (data ?? []) as unknown as WorkResult[], error: null };
   } catch (error) {

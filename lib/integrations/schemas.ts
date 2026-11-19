@@ -32,6 +32,17 @@ const peopleFields = {
   long_biography: text,
 };
 
+const instrumentQuantity = z.number().int().min(0).max(1000).nullable();
+const importedInstrument = z.object({
+  instrument: z.string().trim().min(1).max(200),
+  minimum_quantity: instrumentQuantity,
+  maximum_quantity: instrumentQuantity,
+}).strict().refine(
+  ({ minimum_quantity: min, maximum_quantity: max }) =>
+    (min !== null || max !== null) && (min === null || max === null || min <= max),
+  { message: "Informe uma quantidade válida ou um intervalo de 0 a 1000." },
+);
+
 const rowKey = { slug };
 const baseFields = { publication_status: status };
 export const importRows = {
@@ -60,6 +71,7 @@ export const importRows = {
     educational_work: z.boolean(), youth_work: z.boolean(), public_domain: z.boolean(),
     rights_status: text, work_status: text, public_summary: text, subscriber_notes: text,
     performance_notes: text, editorial_notes: text, main_source: text, instrumentation_text: text,
+    instrumentation: z.array(importedInstrument).max(40),
     reliability_level: reliability,
   }).partial().extend(rowKey).strict(),
 };

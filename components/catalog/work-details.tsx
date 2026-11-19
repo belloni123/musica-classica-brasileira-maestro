@@ -16,7 +16,9 @@ export async function CatalogWorkDetails({ workId, durationMinutes, formationTyp
   if ([details, instrumentation, sources, references].some(result => result.error)) throw new Error("Não foi possível carregar os detalhes autorizados.");
   const data = details.data as WorkDetails | null;
   const code = instrumentationCode(instrumentation.data ?? []);
-  const mainSourceUrl = safeExternalUrl(data?.main_source);
+  const mainSource = data?.main_source?.trim();
+  const mainSourceUrl = mainSource && !/\s/.test(mainSource) ? safeExternalUrl(mainSource) : null;
+  const materialSources = sources.data ?? [];
   const visibleInstrumentation = sortInstrumentationRows((instrumentation.data ?? []).filter(row => {
     const name = firstRelated(row.instruments)?.name?.trim().toLocaleLowerCase("pt-BR") ?? "";
     const isStrings = name === "cordas" || name === "strings";
@@ -48,19 +50,26 @@ export async function CatalogWorkDetails({ workId, durationMinutes, formationTyp
         </p>
       </div>
     </Card>
-    <Card>
-      <h2 className="text-2xl">Disponibilidade de material</h2>
-      {mainSourceUrl && <p className="mt-3"><a className="break-all underline" href={mainSourceUrl} target="_blank" rel="noopener noreferrer">{data?.main_source}</a></p>}
-      {sources.data?.map(source => <div key={source.id} className="mt-4 border-t pt-3">
-        <h3>{firstRelated(source.source_holders)?.name ?? "Acervo não informado"} · {source.material_type}</h3>
-        <p className="text-sm">Partitura: {source.score_available ? "disponível" : "não confirmada"} · Partes: {source.parts_available ? "disponíveis" : "não confirmadas"}</p>
-        <p>{source.access_conditions}</p>
-        <div className="flex gap-3">{[["Consulta",source.perusal_score_url],["Compra",source.purchase_url],["Locação",source.rental_url]].map(([label,url]) => {
-          const href = safeExternalUrl(url); return href ? <a key={label} className="underline" href={href} target="_blank" rel="noopener noreferrer">{label}</a> : null;
-        })}</div>
-      </div>)}
-      {!mainSourceUrl && !sources.data?.length && <p className="mt-3 text-sm">Nenhum material informado.</p>}
-    </Card>
+    {(mainSource || materialSources.length > 0) && (
+      <Card>
+        <h2 className="text-2xl">Disponibilidade de material</h2>
+        {mainSource && (
+          <p className="mt-3 break-words">
+            {mainSourceUrl
+              ? <a className="underline" href={mainSourceUrl} target="_blank" rel="noopener noreferrer">{mainSource}</a>
+              : mainSource}
+          </p>
+        )}
+        {materialSources.map(source => <div key={source.id} className="mt-4 border-t pt-3">
+          <h3>{firstRelated(source.source_holders)?.name ?? "Acervo não informado"} · {source.material_type}</h3>
+          <p className="text-sm">Partitura: {source.score_available ? "disponível" : "não confirmada"} · Partes: {source.parts_available ? "disponíveis" : "não confirmadas"}</p>
+          {source.access_conditions?.trim() && <p>{source.access_conditions}</p>}
+          <div className="flex gap-3">{[["Consulta",source.perusal_score_url],["Compra",source.purchase_url],["Locação",source.rental_url]].map(([label,url]) => {
+            const href = safeExternalUrl(url); return href ? <a key={label} className="underline" href={href} target="_blank" rel="noopener noreferrer">{label}</a> : null;
+          })}</div>
+        </div>)}
+      </Card>
+    )}
     <Card>
       <h2 className="text-2xl">Referências bibliográficas</h2>
       {references.data?.map(row => { const reference = firstRelated(row.bibliographic_references); const href = safeExternalUrl(reference?.url); return <p className="mt-3" key={row.id}>{reference?.author} · {reference?.title} · {reference?.year ?? "s/d"} {href && <a href={href} className="underline" target="_blank" rel="noopener noreferrer">Consultar</a>}</p>; })}

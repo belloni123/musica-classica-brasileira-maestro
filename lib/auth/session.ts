@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { AppRole } from "@/lib/permissions/roles";
@@ -16,7 +17,7 @@ export type CurrentProfile = {
   status: string;
 };
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   try {
     const supabase = await createClient();
     const {
@@ -32,24 +33,15 @@ export async function getCurrentUser() {
   } catch {
     return null;
   }
-}
+});
 
-export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+const getProfileForUser = cache(async (userId: string): Promise<CurrentProfile | null> => {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return null;
-    }
-
     const { data, error } = await supabase
       .from("profiles")
       .select("id,email,full_name,role,status")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     if (error || !data) {
@@ -60,6 +52,11 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   } catch {
     return null;
   }
+});
+
+export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+  const user = await getCurrentUser();
+  return user ? getProfileForUser(user.id) : null;
 }
 
 export function isAdmin(profile: CurrentProfile | null) {
@@ -89,7 +86,7 @@ export async function requireAdminAccess() {
     redirect("/entrar");
   }
 
-  const profile = await getCurrentProfile();
+  const profile = await getProfileForUser(user.id);
 
   if (!profile || !hasEditorialAccess(profile)) {
     redirect("/acesso-negado");
@@ -105,7 +102,7 @@ export async function requireSuperAdminAccess() {
     redirect("/entrar");
   }
 
-  const profile = await getCurrentProfile();
+  const profile = await getProfileForUser(user.id);
 
   if (!profile || !hasUserManagementAccess(profile)) {
     redirect("/acesso-negado");

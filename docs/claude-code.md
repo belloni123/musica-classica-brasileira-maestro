@@ -82,7 +82,18 @@ slug;composer_slug;canonical_title;display_title;composition_year_start;duration
 sinfonia-exemplo;compositor-exemplo;Sinfonia n.º 1;Primeira Sinfonia;1940;27,5;Orquestra sinfônica
 ```
 
-Campos opcionais incluem biografias e anos para pessoas, datas e nomes alternativos para compositores, e formação, duração, solista, instrumentação em texto, observações e resumo público para obras. O contrato lista os campos e tipos por entidade. Instrumentos individuais, movimentos, vozes, fontes e referências continuam no cadastro editorial próprio. O cadastro de maestros funciona como diretório de perfis. Uma eventual ficha de regência por apresentação ou obra requer modelar esse vínculo em uma migração. [Contrato OpenAPI](https://obras.maestrothiagosantos.com.br/api/v1/openapi.json)
+Campos opcionais incluem biografias e anos para pessoas, datas e nomes alternativos para compositores, e formação, duração, solista, instrumentação em texto, observações e resumo público para obras. O contrato lista os campos e tipos por entidade. Movimentos, vozes, fontes e referências continuam no cadastro editorial próprio. O cadastro de maestros funciona como diretório de perfis. Uma eventual ficha de regência por apresentação ou obra requer modelar esse vínculo em uma migração. [Contrato OpenAPI](https://obras.maestrothiagosantos.com.br/api/v1/openapi.json)
+
+### Instrumentação estruturada na aba de obras
+
+Inclua a coluna `instrumentation`. Cada item usa o nome do instrumento no catálogo, seguido de `=` e da quantidade. Separe instrumentos com `|`. Use `3` para quantidade exata, `2-3` para intervalo, `3+` para mínimo sem máximo e `0` para ausência explicitamente registrada. A prévia indica instrumentos desconhecidos, ambíguos ou repetidos.
+
+```csv
+slug;composer_slug;canonical_title;display_title;instrumentation
+sinfonia-exemplo;compositor-exemplo;Sinfonia n.º 1;Primeira Sinfonia;Flauta=3|Oboé=2-3|Tuba=0
+```
+
+A célula vazia preserva a instrumentação. Uma lista preenchida define o conjunto das linhas gerenciadas pela planilha, e `[]` remove esse conjunto. A importação preserva as linhas manuais. Se o mesmo instrumento já estiver cadastrado manualmente, a prévia sinaliza o conflito. A coluna `instrumentation_text` continua disponível para observações em texto livre. A busca por quantidade usa a instrumentação estruturada das obras publicadas.
 
 Para converter a primeira parte de uma aba, rode:
 

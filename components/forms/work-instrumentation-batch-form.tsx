@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 import { addWorkInstrumentations } from "@/app/admin/obras/instrumentation-actions";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ export function WorkInstrumentationBatchForm({ instruments, workId }: {
   instruments: InstrumentOption[];
   workId: string;
 }) {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const nextKey = useRef(1);
   const focusNewRow = useRef(false);
@@ -42,7 +40,6 @@ export function WorkInstrumentationBatchForm({ instruments, workId }: {
       form.reset();
       setRowKeys([nextKey.current++]);
       setMessage(`${count} ${count === 1 ? "instrumento adicionado" : "instrumentos adicionados"} com sucesso.`);
-      router.refresh();
     } catch {
       setError("Não foi possível salvar os instrumentos. Confira os campos e tente novamente; nenhuma linha foi adicionada.");
     } finally {

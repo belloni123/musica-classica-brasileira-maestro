@@ -12,7 +12,26 @@ const booleanFields = new Set([
 ]);
 const listFields = new Set(["alternative_names", "pseudonyms", "alternative_titles"]);
 
+function instrumentationFor(value) {
+  if (value === "[]") return [];
+  const items = value.split("|");
+  if (items.length > 40) throw new Error("Use até 40 instrumentos por obra.");
+  return items.map((item) => {
+    const match = /^([^=]+?)\s*=\s*(\d{1,4})(?:\s*([-–])\s*(\d{1,4})|(\+))?$/.exec(item.trim());
+    if (!match) throw new Error(`Instrumentação inválida em "${item.trim()}". Use Instrumento=3, Instrumento=2-3 ou Instrumento=3+.`);
+    const instrument = match[1].trim();
+    const minimum_quantity = Number(match[2]);
+    const maximum_quantity = match[5] ? null : Number(match[4] ?? match[2]);
+    if (!instrument || minimum_quantity > 1000 ||
+        (maximum_quantity !== null && (maximum_quantity > 1000 || maximum_quantity < minimum_quantity))) {
+      throw new Error(`Instrumento ou quantidade inválida em "${item.trim()}".`);
+    }
+    return { instrument, minimum_quantity, maximum_quantity };
+  });
+}
+
 function valueFor(field, value) {
+  if (field === "instrumentation") return instrumentationFor(value);
   if (value === "<NULL>") return null;
   if (integerFields.has(field) || field === "duration_minutes") {
     const decimal = field === "duration_minutes";

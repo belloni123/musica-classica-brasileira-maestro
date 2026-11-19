@@ -1,8 +1,13 @@
+"use client";
+
+import { startTransition, useActionState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ChoirVoiceFields } from "@/components/forms/choir-voice-fields";
 import { orchestraTypes } from "@/lib/catalog/options";
+
+export type WorkSaveFeedback = { message: string } | null;
 
 export type ComposerOption = { id: string; display_name: string };
 
@@ -23,15 +28,23 @@ export type WorkFormData = {
 };
 
 export function WorkForm({ action, composers, submitLabel, work, choirVoices = [] }: {
-  action: (formData: FormData) => Promise<void>;
+  action: (previous: WorkSaveFeedback, formData: FormData) => Promise<WorkSaveFeedback>;
   composers: ComposerOption[];
   submitLabel: string;
   work?: WorkFormData;
   choirVoices?: string[];
 }) {
+  const [feedback, submit, isPending] = useActionState(action, null);
   const selectedSoloist = work?.soloist_type ?? (work?.has_soloist ? "" : "none");
 
-  return <form action={action} className="grid gap-6">
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    // Submit without React's automatic form reset so successive edits keep the choir selection.
+    startTransition(() => submit(formData));
+  }
+
+  return <form action={submit} onSubmit={handleSubmit} className="grid gap-6">
     <Card className="grid gap-4">
       <h2 className="text-lg font-semibold">Identificação</h2>
       <label className="grid gap-2 text-sm font-medium">
@@ -101,11 +114,14 @@ export function WorkForm({ action, composers, submitLabel, work, choirVoices = [
     <Card className="grid gap-4">
       <h2 className="text-lg font-semibold">Disponibilidade de material</h2>
       <label className="grid gap-2 text-sm font-medium">
-        Endereço do material
-        <Input defaultValue={work?.main_source ?? ""} name="main_source" placeholder="https://..." type="url" />
+        Link ou informação sobre o material
+        <Input defaultValue={work?.main_source ?? ""} name="main_source" placeholder="https://… ou fora de catálogo" type="text" />
       </label>
     </Card>
 
-    <div className="flex justify-end"><Button type="submit">{submitLabel}</Button></div>
+    <div className="flex flex-wrap items-center justify-end gap-3">
+      {!isPending && feedback && <p className="text-sm font-medium text-green-800" role="status">{feedback.message}</p>}
+      <Button disabled={isPending} type="submit">{isPending ? "Salvando..." : submitLabel}</Button>
+    </div>
   </form>;
 }

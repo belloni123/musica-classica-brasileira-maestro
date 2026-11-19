@@ -46,7 +46,8 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  // Refresh cookies and verify the JWT. Protected pages and actions still validate the user.
+  await supabase.auth.getClaims();
 
   return response;
 }
